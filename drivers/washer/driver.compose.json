@@ -35,7 +35,13 @@
     "lg_operation_mode",
     "lg_cycle_count",
     "lg_thinq2_status",
-    "lg_course_count"
+    "lg_course_count",
+    "lg_progress_percent",
+    "lg_remaining_minutes",
+    "lg_total_minutes",
+    "lg_learned_duration",
+    "lg_actual_cycle_duration",
+    "lg_planned_price"
   ],
   "images": {
     "small": "/drivers/washer/assets/images/small.png",

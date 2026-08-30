@@ -4,7 +4,7 @@ const Homey = require('homey');
 
 class LGThinQApp extends Homey.App {
   async onInit() {
-    this.log('LG ThinQ Washer v0.6.19 gestart');
+    this.log(`LG ThinQ v${this.homey?.manifest?.version || 'onbekend'} gestart`);
 
     const action = id => this.homey.flow.getActionCard(id);
     const condition = id => this.homey.flow.getConditionCard(id);

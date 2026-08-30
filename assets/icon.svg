@@ -1,12 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
-  <g fill="none" stroke="#ffffff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M125 245V170L250 78L375 170V245"/>
-    <path d="M150 340V225"/>
-    <path d="M350 340V225"/>
-    <path d="M150 340H350"/>
-    <path d="M210 330V245H290V330"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g fill="none" stroke="#000" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+    <!-- smart-home house/circuit -->
+    <path d="M118 236V168L256 66L394 168V344"/>
+    <circle cx="118" cy="278" r="28"/>
+    <path d="M118 250V236"/>
+    <circle cx="394" cy="196" r="28"/>
+    <path d="M394 224V344"/>
+    <!-- inner connected path / doorway -->
+    <path d="M184 344V246H286V310H352V344H184Z"/>
   </g>
-  <circle cx="125" cy="245" r="20" fill="none" stroke="#ffffff" stroke-width="18"/>
-  <circle cx="375" cy="170" r="20" fill="none" stroke="#ffffff" stroke-width="18"/>
-  <text x="250" y="420" text-anchor="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">LG ThinQ</text>
+
+  <!-- App name -->
+  <text x="256" y="420" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="48" font-weight="700" fill="#000">LG ThinQ</text>
+  <text x="256" y="460" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="22" fill="#000">for Homey</text>
 </svg>

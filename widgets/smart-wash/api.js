@@ -10,12 +10,70 @@ const {
   startInsightsRecorder
 } = require('../../lib/smart-wash-duration');
 
+const TURBO59_DRY_OPTIONS = ['NOT_SELECTED', 'DRYLEVEL_NORMAL'];
+const FULL_DRY_OPTIONS = [
+  'NOT_SELECTED',
+  'NO_DRYLEVEL',
+  'DRYLEVEL_NORMAL',
+  'DRYLEVEL_30',
+  'DRYLEVEL_60',
+  'DRYLEVEL_90',
+  'DRYLEVEL_120',
+  'DRYLEVEL_150',
+  'DRYLEVEL_ECO',
+  'DRYLEVEL_VERY',
+  'DRYLEVEL_IRON',
+  'DRYLEVEL_LOW',
+  'DRYLEVEL_ENERGY',
+  'DRYLEVEL_SPEED'
+];
+
 function device(homey, id) {
   if (!id) throw new Error('Geen wasmachine geselecteerd in de widget.');
   return homey.app.getWasherDevice(id);
 }
 
+function ensureCourseOption(course, key, options, fallbackDefault = null) {
+  if (!course || !Array.isArray(course.function)) return;
+  let fn = course.function.find(x => x?.value === key);
+  if (!fn) {
+    fn = {
+      value: key,
+      default: fallbackDefault,
+      selectable: [...options]
+    };
+    course.function.push(fn);
+    return;
+  }
+
+  const existing = Array.isArray(fn.selectable) ? fn.selectable : [];
+  fn.selectable = [...new Set([...existing, ...options])];
+  if (fn.default === undefined || fn.default === null || fn.default === '') {
+    fn.default = fallbackDefault;
+  }
+}
+
+function patchWasherDryOptions(d) {
+  const courses = d?._courses;
+  if (!courses || typeof courses !== 'object') return;
+
+  // Physical GD3V509S1 behaviour verified on the appliance:
+  // Turbo Wash 59 allows drying OFF/ON, while Wash+Dry cycles through the
+  // washer-dryer's complete drying choices. The LG course JSON exposes these
+  // too narrowly, so widen only the Homey in-memory course model.
+  if (courses.TURBO59) {
+    ensureCourseOption(courses.TURBO59, 'dryLevel', TURBO59_DRY_OPTIONS, 'NOT_SELECTED');
+  }
+  if (courses.WASHDRY) {
+    ensureCourseOption(courses.WASHDRY, 'dryLevel', FULL_DRY_OPTIONS, 'DRYLEVEL_NORMAL');
+  }
+  if (courses.DRYONLY) {
+    ensureCourseOption(courses.DRYONLY, 'dryLevel', FULL_DRY_OPTIONS, 'DRYLEVEL_NORMAL');
+  }
+}
+
 async function prepareDevice(d) {
+  patchWasherDryOptions(d);
   await ensureInsightsCapabilities(d);
   startInsightsRecorder(d);
   return d;
@@ -85,27 +143,47 @@ function averagePriceForWindow(slots, startMs, endMs) {
 }
 
 async function getCompleteEnergyPriceWindow(app, fromMs, untilMs) {
-  const start = DateTime.fromMillis(Number(fromMs));
-  const end = DateTime.fromMillis(Number(untilMs));
-  const days = [];
-  let day = start.startOf('day');
-  const last = end.startOf('day');
-
-  while (day <= last && days.length < 4) {
-    days.push(day.toISODate());
-    day = day.plus({ days: 1 });
+  const from = Number(fromMs);
+  const until = Number(untilMs);
+  if (!Number.isFinite(from) || !Number.isFinite(until) || until <= from) {
+    throw new Error('Ongeldige periode voor Homey Energy-prijzen.');
   }
+
+  // Work explicitly in the Homey's local Dutch tariff calendar. Avoid relying
+  // on DateTime object relational comparison for a multi-day window.
+  const zone = 'Europe/Amsterdam';
+  const firstDay = DateTime.fromMillis(from, { zone }).startOf('day');
+  const lastDay = DateTime.fromMillis(until, { zone }).startOf('day');
+  const days = [];
+
+  for (
+    let day = firstDay;
+    day.toMillis() <= lastDay.toMillis() && days.length < 4;
+    day = day.plus({ days: 1 })
+  ) {
+    days.push(day.toISODate());
+  }
+
+  app.log(
+    `Homey Energy planning: van=${DateTime.fromMillis(from, { zone }).toFormat('dd-LL HH:mm')} ` +
+    `tot=${DateTime.fromMillis(until, { zone }).toFormat('dd-LL HH:mm')}; dagen=${days.join(',')}`
+  );
 
   const merged = [];
   for (const date of days) {
     let prices;
     try {
+      app.log(`Homey Energy planning: prijsdata ${date} ophalen.`);
       prices = await app.getHomeyEnergyPrices(date);
     } catch (err) {
-      throw new Error(`Homey Energy-prijzen voor ${date} ontbreken: ${err?.message || err}`);
+      const message = `Homey Energy-prijzen voor ${date} ontbreken: ${err?.message || err}`;
+      app.error(`Slim Wassen planning: ${message}`);
+      throw new Error(message);
     }
     if (!Array.isArray(prices) || !prices.length) {
-      throw new Error(`Homey Energy heeft nog geen prijsdata voor ${date}. Probeer het later opnieuw.`);
+      const message = `Homey Energy heeft nog geen prijsdata voor ${date}. Probeer het later opnieuw.`;
+      app.error(`Slim Wassen planning: ${message}`);
+      throw new Error(message);
     }
     merged.push(...prices);
   }
@@ -118,34 +196,32 @@ async function getCompleteEnergyPriceWindow(app, fromMs, untilMs) {
   }
 
   const slots = [...byStart.values()]
-    .filter(p => Number(p.end) > Number(fromMs) && Number(p.start) < Number(untilMs))
+    .filter(p => Number(p.end) > from && Number(p.start) < until)
     .sort((a, b) => Number(a.start) - Number(b.start));
 
   if (!slots.length) throw new Error('Geen Homey Energy-prijzen beschikbaar in deze periode.');
 
-  // Refuse to optimize over an incomplete horizon. Previously a missing next-day
-  // response silently left only tonight's prices, which could select a much more
-  // expensive start even though cheaper prices existed tomorrow.
-  let cursor = Number(fromMs);
+  let cursor = from;
   for (const slot of slots) {
     const slotStart = Number(slot.start);
     const slotEnd = Number(slot.end);
     if (slotEnd <= cursor) continue;
     if (slotStart > cursor + 1000) {
-      const missingFrom = DateTime.fromMillis(cursor).toFormat('dd-LL HH:mm');
-      const missingTo = DateTime.fromMillis(slotStart).toFormat('dd-LL HH:mm');
+      const missingFrom = DateTime.fromMillis(cursor, { zone }).toFormat('dd-LL HH:mm');
+      const missingTo = DateTime.fromMillis(slotStart, { zone }).toFormat('dd-LL HH:mm');
       throw new Error(`Prijsdata is niet compleet tussen ${missingFrom} en ${missingTo}. Er wordt niet gepland met onvolledige prijzen.`);
     }
     cursor = Math.max(cursor, slotEnd);
-    if (cursor >= Number(untilMs) - 1000) break;
+    if (cursor >= until - 1000) break;
   }
 
-  if (cursor < Number(untilMs) - 1000) {
-    const availableUntil = DateTime.fromMillis(cursor).toFormat('dd-LL HH:mm');
-    const wantedUntil = DateTime.fromMillis(Number(untilMs)).toFormat('dd-LL HH:mm');
+  if (cursor < until - 1000) {
+    const availableUntil = DateTime.fromMillis(cursor, { zone }).toFormat('dd-LL HH:mm');
+    const wantedUntil = DateTime.fromMillis(until, { zone }).toFormat('dd-LL HH:mm');
     throw new Error(`Homey Energy-prijzen zijn beschikbaar tot ${availableUntil}, maar de deadline is ${wantedUntil}. Wacht tot alle prijzen beschikbaar zijn.`);
   }
 
+  app.log(`Homey Energy planning: ${slots.length} bruikbare prijspunten over ${days.length} dag(en).`);
   return slots;
 }
 
@@ -185,6 +261,12 @@ async function calculateCompleteCheapestWindow(app, { earliestMs, deadlineMs, du
   }
 
   candidates.sort((a, b) => a.averagePrice - b.averagePrice || a.start - b.start);
+  app.log(
+    `Slim Wassen planning: ${candidates.length} kandidaten; goedkoopste=` +
+    `${DateTime.fromMillis(candidates[0].start, { zone: 'Europe/Amsterdam' }).toFormat('dd-LL HH:mm')} ` +
+    `@ ${Number(candidates[0].averagePrice).toFixed(4)} EUR/kWh.`
+  );
+
   return {
     best: candidates[0],
     alternatives: candidates.slice(1, 5),
@@ -199,6 +281,7 @@ async function calculateCompleteCheapestWindow(app, { earliestMs, deadlineMs, du
 }
 
 async function getReadyWidgetState(d) {
+  patchWasherDryOptions(d);
   let state = d.getWidgetState();
   if (Array.isArray(state?.programs) && state.programs.length) {
     const live = d.getWidgetLiveStatus();
@@ -208,6 +291,7 @@ async function getReadyWidgetState(d) {
 
   for (let i = 0; i < 6; i++) {
     await sleep(250);
+    patchWasherDryOptions(d);
     state = d.getWidgetState();
     if (Array.isArray(state?.programs) && state.programs.length) {
       const live = d.getWidgetLiveStatus();
@@ -217,6 +301,7 @@ async function getReadyWidgetState(d) {
   }
 
   await d.refreshThinQ2().catch(() => {});
+  patchWasherDryOptions(d);
   state = d.getWidgetState();
   const live = d.getWidgetLiveStatus();
   await recordFromLive(d, live).catch(() => {});
@@ -238,11 +323,18 @@ module.exports = {
 
   async previewPlan({ homey, body }) {
     const d = await prepareDevice(device(homey, body.deviceId));
-    const result = await calculateCompleteCheapestWindow(homey.app, {
-      earliestMs: body.earliestMs,
-      deadlineMs: body.deadlineMs,
-      durationMinutes: body.durationMinutes
-    });
+    let result;
+    try {
+      result = await calculateCompleteCheapestWindow(homey.app, {
+        earliestMs: body.earliestMs,
+        deadlineMs: body.deadlineMs,
+        durationMinutes: body.durationMinutes
+      });
+    } catch (err) {
+      homey.app.error(`Slim Wassen preview mislukt: ${err?.message || err}`);
+      throw err;
+    }
+
     const durationMs = Number(result?.best?.durationMinutes || body.durationMinutes) * 60000;
     const directStart = Math.max(Date.now(), Number(body.earliestMs) || Date.now());
     const directAveragePrice = averagePriceForWindow(result.slots, directStart, directStart + durationMs);
@@ -264,9 +356,8 @@ module.exports = {
 
   async savePlan({ homey, body }) {
     const d = await prepareDevice(device(homey, body.deviceId));
-    // Temporary safety lock for 0.7.8 testing: the device-level legacy replanner
-    // still uses the older partial-horizon routine. Keep the verified widget
-    // result fixed so it cannot be replaced by an incomplete overnight window.
+    // Keep the verified complete-horizon result fixed. The device-level legacy
+    // replanner still uses the older app-level routine until that is migrated.
     return d.setSmartWashPlan({ ...body.plan, autoReplan: false });
   },
 

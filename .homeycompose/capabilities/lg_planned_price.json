@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Planned energy price", "nl": "Geplande energieprijs" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": { "en": "€/kWh", "nl": "€/kWh" },
+  "min": -1,
+  "max": 5,
+  "decimals": 4,
+  "insights": true,
+  "icon": "/assets/capabilities/time.svg"
+}

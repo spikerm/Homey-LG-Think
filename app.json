@@ -1,6 +1,7 @@
 {
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rexm.lgthinq",
-  "version": "0.7.2",
+  "version": "0.7.6",
   "compatibility": ">=12.3.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -20,1014 +21,19 @@
   "author": {
     "name": "Rex"
   },
-  "capabilities": {
-    "lg_state": {
-      "type": "string",
-      "title": {
-        "en": "State",
-        "nl": "Status"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/status.svg"
-    },
-    "lg_remaining": {
-      "type": "string",
-      "title": {
-        "en": "Remaining time",
-        "nl": "Resterende tijd"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/time.svg"
-    },
-    "lg_total": {
-      "type": "string",
-      "title": {
-        "en": "Total time",
-        "nl": "Totale tijd"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/time.svg"
-    },
-    "lg_remote_control": {
-      "type": "boolean",
-      "title": {
-        "en": "Remote control",
-        "nl": "Afstandsbediening"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/remote.svg"
-    },
-    "lg_operation_mode": {
-      "type": "string",
-      "title": {
-        "en": "Operation mode",
-        "nl": "Bedieningsmodus"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/mode.svg"
-    },
-    "lg_cycle_count": {
-      "type": "number",
-      "title": {
-        "en": "Cycle count",
-        "nl": "Aantal cycli"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/cycles.svg"
-    },
-    "lg_current_program": {
-      "type": "string",
-      "title": {
-        "en": "Current program",
-        "nl": "Huidig programma"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg"
-    },
-    "lg_temperature": {
-      "type": "string",
-      "title": {
-        "en": "Temperature",
-        "nl": "Temperatuur"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/temp.svg"
-    },
-    "lg_spin": {
-      "type": "string",
-      "title": {
-        "en": "Spin",
-        "nl": "Centrifugeren"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/spin.svg"
-    },
-    "lg_rinse": {
-      "type": "string",
-      "title": {
-        "en": "Rinse",
-        "nl": "Spoelen"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/rinse.svg"
-    },
-    "lg_dry_level": {
-      "type": "string",
-      "title": {
-        "en": "Dry level",
-        "nl": "Droogniveau"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/dry.svg"
-    },
-    "lg_thinq2_status": {
-      "type": "string",
-      "title": {
-        "en": "ThinQ2 status",
-        "nl": "ThinQ2 status"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/cloud.svg"
-    },
-    "lg_course_count": {
-      "type": "number",
-      "title": {
-        "en": "Course count",
-        "nl": "Aantal programma's"
-      },
-      "getable": true,
-      "setable": false,
-      "uiComponent": "sensor",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg"
-    },
-    "lg_program_select": {
-      "type": "enum",
-      "title": {
-        "en": "Program",
-        "nl": "Wasprogramma"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg",
-      "values": [
-        {
-          "id": "COTTON",
-          "title": {
-            "en": "Katoen",
-            "nl": "Katoen"
-          }
-        },
-        {
-          "id": "EASYCARE",
-          "title": {
-            "en": "Easy Care",
-            "nl": "Easy Care"
-          }
-        },
-        {
-          "id": "COTTONPLUS",
-          "title": {
-            "en": "Eco 40-60",
-            "nl": "Eco 40-60"
-          }
-        },
-        {
-          "id": "MIXEDFABRIC",
-          "title": {
-            "en": "Mix",
-            "nl": "Mix"
-          }
-        },
-        {
-          "id": "BABYSTEAMCARE",
-          "title": {
-            "en": "Baby Steam Care",
-            "nl": "Baby Steam Care"
-          }
-        },
-        {
-          "id": "SPEED14",
-          "title": {
-            "en": "Snel 14",
-            "nl": "Snel 14"
-          }
-        },
-        {
-          "id": "TUB_CLEAN",
-          "title": {
-            "en": "Trommelreiniging",
-            "nl": "Trommelreiniging"
-          }
-        },
-        {
-          "id": "WOOL",
-          "title": {
-            "en": "Wol",
-            "nl": "Wol"
-          }
-        },
-        {
-          "id": "DELICATE",
-          "title": {
-            "en": "Fijne was",
-            "nl": "Fijne was"
-          }
-        },
-        {
-          "id": "ALLERGYSPASTEAM",
-          "title": {
-            "en": "Allergie/Stoom",
-            "nl": "Allergie/Stoom"
-          }
-        },
-        {
-          "id": "TURBO59",
-          "title": {
-            "en": "Turbo Wash 59",
-            "nl": "Turbo Wash 59"
-          }
-        },
-        {
-          "id": "DRYONLY",
-          "title": {
-            "en": "Alleen drogen",
-            "nl": "Alleen drogen"
-          }
-        },
-        {
-          "id": "WASHDRY",
-          "title": {
-            "en": "Wassen + drogen",
-            "nl": "Wassen + drogen"
-          }
-        },
-        {
-          "id": "SPINONLY",
-          "title": {
-            "en": "Spin only",
-            "nl": "Alleen centrifugeren"
-          }
-        }
-      ]
-    },
-    "lg_temp_select": {
-      "type": "enum",
-      "title": {
-        "en": "Temperature setting",
-        "nl": "Temperatuur instellen"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "insights": false,
-      "icon": "/assets/capabilities/temp.svg",
-      "values": [
-        {
-          "id": "TEMP_COLD",
-          "title": {
-            "en": "Cold",
-            "nl": "Koud"
-          }
-        },
-        {
-          "id": "TEMP_20",
-          "title": {
-            "en": "20 °C",
-            "nl": "20 °C"
-          }
-        },
-        {
-          "id": "TEMP_30",
-          "title": {
-            "en": "30 °C",
-            "nl": "30 °C"
-          }
-        },
-        {
-          "id": "TEMP_40",
-          "title": {
-            "en": "40 °C",
-            "nl": "40 °C"
-          }
-        },
-        {
-          "id": "TEMP_50",
-          "title": {
-            "en": "50 °C",
-            "nl": "50 °C"
-          }
-        },
-        {
-          "id": "TEMP_60",
-          "title": {
-            "en": "60 °C",
-            "nl": "60 °C"
-          }
-        },
-        {
-          "id": "TEMP_95",
-          "title": {
-            "en": "95 °C",
-            "nl": "95 °C"
-          }
-        }
-      ]
-    },
-    "lg_spin_select": {
-      "type": "enum",
-      "title": {
-        "en": "Spin setting",
-        "nl": "Centrifugeren instellen"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "insights": false,
-      "icon": "/assets/capabilities/spin.svg",
-      "values": [
-        {
-          "id": "NO_SPIN",
-          "title": {
-            "en": "No spin",
-            "nl": "Niet centrifugeren"
-          }
-        },
-        {
-          "id": "SPIN_400",
-          "title": {
-            "en": "400 rpm",
-            "nl": "400 rpm"
-          }
-        },
-        {
-          "id": "SPIN_600",
-          "title": {
-            "en": "600 rpm",
-            "nl": "600 rpm"
-          }
-        },
-        {
-          "id": "SPIN_700",
-          "title": {
-            "en": "700 rpm",
-            "nl": "700 rpm"
-          }
-        },
-        {
-          "id": "SPIN_800",
-          "title": {
-            "en": "800 rpm",
-            "nl": "800 rpm"
-          }
-        },
-        {
-          "id": "SPIN_900",
-          "title": {
-            "en": "900 rpm",
-            "nl": "900 rpm"
-          }
-        },
-        {
-          "id": "SPIN_1000",
-          "title": {
-            "en": "1000 rpm",
-            "nl": "1000 rpm"
-          }
-        },
-        {
-          "id": "SPIN_1100",
-          "title": {
-            "en": "1100 rpm",
-            "nl": "1100 rpm"
-          }
-        },
-        {
-          "id": "SPIN_1200",
-          "title": {
-            "en": "1200 rpm",
-            "nl": "1200 rpm"
-          }
-        },
-        {
-          "id": "SPIN_1600",
-          "title": {
-            "en": "1600 rpm",
-            "nl": "1600 rpm"
-          }
-        },
-        {
-          "id": "SPIN_Max",
-          "title": {
-            "en": "Maximum",
-            "nl": "Maximum"
-          }
-        }
-      ]
-    },
-    "lg_rinse_select": {
-      "type": "enum",
-      "title": {
-        "en": "Rinse setting",
-        "nl": "Spoelen instellen"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "insights": false,
-      "icon": "/assets/capabilities/rinse.svg",
-      "values": [
-        {
-          "id": "RINSE_NORMAL",
-          "title": {
-            "en": "Normal",
-            "nl": "Normaal"
-          }
-        },
-        {
-          "id": "RINSE_PLUS",
-          "title": {
-            "en": "Extra",
-            "nl": "Extra"
-          }
-        },
-        {
-          "id": "RINSE_PLUSPLUS",
-          "title": {
-            "en": "Extra +",
-            "nl": "Extra +"
-          }
-        },
-        {
-          "id": "RINSE_NORMAL_HOLD",
-          "title": {
-            "en": "Normal + hold",
-            "nl": "Normaal + stop"
-          }
-        },
-        {
-          "id": "RINSE_PLUS_HOLD",
-          "title": {
-            "en": "Extra + hold",
-            "nl": "Extra + stop"
-          }
-        }
-      ]
-    },
-    "lg_start_button": {
-      "type": "boolean",
-      "title": {
-        "en": "Start washer",
-        "nl": "Wasmachine starten"
-      },
-      "getable": false,
-      "setable": true,
-      "uiComponent": "button",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg"
-    },
-    "lg_wakeup_button": {
-      "type": "boolean",
-      "title": {
-        "en": "Wake washer",
-        "nl": "Uit slaapstand halen"
-      },
-      "getable": false,
-      "setable": true,
-      "uiComponent": "button",
-      "insights": false,
-      "icon": "/assets/capabilities/mode.svg"
-    },
-    "lg_steam_toggle": {
-      "type": "boolean",
-      "title": {
-        "en": "Steam",
-        "nl": "Stoom"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "toggle",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg"
-    },
-    "lg_medic_rinse_toggle": {
-      "type": "boolean",
-      "title": {
-        "en": "Medic rinse",
-        "nl": "Hygiënisch spoelen"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "toggle",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg"
-    },
-    "lg_load_item_select": {
-      "type": "enum",
-      "title": {
-        "en": "Add item",
-        "nl": "Was toevoegen"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg",
-      "values": [
-        {
-          "id": "LOADITEM_OFF",
-          "title": {
-            "en": "Off",
-            "nl": "Uit"
-          }
-        },
-        {
-          "id": "LOADITEM_1",
-          "title": {
-            "en": "Level 1",
-            "nl": "Niveau 1"
-          }
-        },
-        {
-          "id": "LOADITEM_2",
-          "title": {
-            "en": "Level 2",
-            "nl": "Niveau 2"
-          }
-        },
-        {
-          "id": "LOADITEM_3",
-          "title": {
-            "en": "Level 3",
-            "nl": "Niveau 3"
-          }
-        }
-      ]
-    },
-    "lg_prewash_toggle": {
-      "type": "boolean",
-      "title": {
-        "en": "Prewash",
-        "nl": "Voorwas"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "toggle",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg"
-    },
-    "lg_pause_button": {
-      "type": "boolean",
-      "title": {
-        "en": "Pause washer",
-        "nl": "Wasmachine pauzeren"
-      },
-      "getable": false,
-      "setable": true,
-      "uiComponent": "button",
-      "insights": false,
-      "icon": "/assets/capabilities/status.svg"
-    },
-    "lg_soil_select": {
-      "type": "enum",
-      "title": {
-        "en": "Wash intensity",
-        "nl": "Wasintensiteit"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg",
-      "values": [
-        {
-          "id": "NO_SOILWASH",
-          "title": {
-            "en": "Not selected",
-            "nl": "Niet geselecteerd"
-          }
-        },
-        {
-          "id": "SOILWASH_NORMAL",
-          "title": {
-            "en": "Normal",
-            "nl": "Normaal"
-          }
-        },
-        {
-          "id": "SOILWASH_INTENSIVE",
-          "title": {
-            "en": "Intensive",
-            "nl": "Intensief"
-          }
-        },
-        {
-          "id": "SOILWASH_TIMESAVE",
-          "title": {
-            "en": "Time save",
-            "nl": "Tijdbesparing"
-          }
-        },
-        {
-          "id": "SOILWASH_TURBO_WASH",
-          "title": {
-            "en": "Turbo wash",
-            "nl": "Turbo wash"
-          }
-        }
-      ]
-    },
-    "lg_refresh_button": {
-      "type": "boolean",
-      "title": {
-        "en": "Refresh now",
-        "nl": "Nu verversen"
-      },
-      "getable": false,
-      "setable": true,
-      "uiComponent": "button",
-      "insights": false,
-      "icon": "/assets/capabilities/status.svg"
-    },
-    "lg_turbowash_toggle": {
-      "type": "boolean",
-      "title": {
-        "en": "TurboWash",
-        "nl": "TurboWash"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "toggle",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg"
-    },
-    "lg_eco_hybrid_toggle": {
-      "type": "boolean",
-      "title": {
-        "en": "Eco Hybrid",
-        "nl": "Eco Hybrid"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "toggle",
-      "insights": false,
-      "icon": "/assets/capabilities/program.svg"
-    },
-    "lg_dry_select": {
-      "type": "enum",
-      "title": {
-        "en": "Dry level setting",
-        "nl": "Droogniveau instellen"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "insights": false,
-      "icon": "/assets/capabilities/dry.svg",
-      "values": [
-        {
-          "id": "NOT_SELECTED",
-          "title": {
-            "en": "Not selected",
-            "nl": "Niet geselecteerd"
-          }
-        },
-        {
-          "id": "NO_DRYLEVEL",
-          "title": {
-            "en": "No drying",
-            "nl": "Niet drogen"
-          }
-        },
-        {
-          "id": "DRYLEVEL_NORMAL",
-          "title": {
-            "en": "Normal",
-            "nl": "Normaal"
-          }
-        },
-        {
-          "id": "DRYLEVEL_30",
-          "title": {
-            "en": "30 minutes",
-            "nl": "30 minuten"
-          }
-        },
-        {
-          "id": "DRYLEVEL_60",
-          "title": {
-            "en": "60 minutes",
-            "nl": "60 minuten"
-          }
-        },
-        {
-          "id": "DRYLEVEL_90",
-          "title": {
-            "en": "90 minutes",
-            "nl": "90 minuten"
-          }
-        },
-        {
-          "id": "DRYLEVEL_120",
-          "title": {
-            "en": "120 minutes",
-            "nl": "120 minuten"
-          }
-        },
-        {
-          "id": "DRYLEVEL_150",
-          "title": {
-            "en": "150 minutes",
-            "nl": "150 minuten"
-          }
-        },
-        {
-          "id": "DRYLEVEL_ECO",
-          "title": {
-            "en": "Eco",
-            "nl": "Eco"
-          }
-        },
-        {
-          "id": "DRYLEVEL_VERY",
-          "title": {
-            "en": "Extra dry",
-            "nl": "Extra droog"
-          }
-        },
-        {
-          "id": "DRYLEVEL_IRON",
-          "title": {
-            "en": "Iron dry",
-            "nl": "Strijkdroog"
-          }
-        },
-        {
-          "id": "DRYLEVEL_LOW",
-          "title": {
-            "en": "Low temperature",
-            "nl": "Lage temperatuur"
-          }
-        },
-        {
-          "id": "DRYLEVEL_ENERGY",
-          "title": {
-            "en": "Energy",
-            "nl": "Energie"
-          }
-        },
-        {
-          "id": "DRYLEVEL_SPEED",
-          "title": {
-            "en": "Speed",
-            "nl": "Snel"
-          }
-        }
-      ]
-    },
-    "lg_poweroff_button": {
-      "type": "boolean",
-      "title": {
-        "en": "Power off washer",
-        "nl": "Wasmachine uitschakelen"
-      },
-      "getable": false,
-      "setable": true,
-      "uiComponent": "button",
-      "insights": false,
-      "icon": "/assets/capabilities/status.svg"
-    },
-    "lg_delay_end_select": {
-      "type": "enum",
-      "title": {
-        "en": "Delay end",
-        "nl": "Uitgestelde eindtijd"
-      },
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "insights": false,
-      "icon": "/assets/capabilities/time.svg",
-      "values": [
-        {
-          "id": "0",
-          "title": {
-            "en": "Off",
-            "nl": "Uit"
-          }
-        },
-        {
-          "id": "3",
-          "title": {
-            "en": "3 hours",
-            "nl": "3 uur"
-          }
-        },
-        {
-          "id": "4",
-          "title": {
-            "en": "4 hours",
-            "nl": "4 uur"
-          }
-        },
-        {
-          "id": "5",
-          "title": {
-            "en": "5 hours",
-            "nl": "5 uur"
-          }
-        },
-        {
-          "id": "6",
-          "title": {
-            "en": "6 hours",
-            "nl": "6 uur"
-          }
-        },
-        {
-          "id": "7",
-          "title": {
-            "en": "7 hours",
-            "nl": "7 uur"
-          }
-        },
-        {
-          "id": "8",
-          "title": {
-            "en": "8 hours",
-            "nl": "8 uur"
-          }
-        },
-        {
-          "id": "9",
-          "title": {
-            "en": "9 hours",
-            "nl": "9 uur"
-          }
-        },
-        {
-          "id": "10",
-          "title": {
-            "en": "10 hours",
-            "nl": "10 uur"
-          }
-        },
-        {
-          "id": "11",
-          "title": {
-            "en": "11 hours",
-            "nl": "11 uur"
-          }
-        },
-        {
-          "id": "12",
-          "title": {
-            "en": "12 hours",
-            "nl": "12 uur"
-          }
-        },
-        {
-          "id": "13",
-          "title": {
-            "en": "13 hours",
-            "nl": "13 uur"
-          }
-        },
-        {
-          "id": "14",
-          "title": {
-            "en": "14 hours",
-            "nl": "14 uur"
-          }
-        },
-        {
-          "id": "15",
-          "title": {
-            "en": "15 hours",
-            "nl": "15 uur"
-          }
-        },
-        {
-          "id": "16",
-          "title": {
-            "en": "16 hours",
-            "nl": "16 uur"
-          }
-        },
-        {
-          "id": "17",
-          "title": {
-            "en": "17 hours",
-            "nl": "17 uur"
-          }
-        },
-        {
-          "id": "18",
-          "title": {
-            "en": "18 hours",
-            "nl": "18 uur"
-          }
-        },
-        {
-          "id": "19",
-          "title": {
-            "en": "19 hours",
-            "nl": "19 uur"
-          }
-        }
-      ]
-    }
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
   },
-  "drivers": [
-    {
-      "id": "washer",
-      "name": {
-        "en": "LG Washer",
-        "nl": "LG Wasmachine"
-      },
-      "class": "washer",
-      "capabilities": [
-        "lg_program_select",
-        "lg_temp_select",
-        "lg_spin_select",
-        "lg_rinse_select",
-        "lg_dry_select",
-        "lg_soil_select",
-        "lg_prewash_toggle",
-        "lg_turbowash_toggle",
-        "lg_steam_toggle",
-        "lg_medic_rinse_toggle",
-        "lg_eco_hybrid_toggle",
-        "lg_load_item_select",
-        "lg_delay_end_select",
-        "lg_start_button",
-        "lg_pause_button",
-        "lg_wakeup_button",
-        "lg_poweroff_button",
-        "lg_refresh_button",
-        "lg_state",
-        "lg_current_program",
-        "lg_remaining",
-        "lg_total",
-        "lg_temperature",
-        "lg_spin",
-        "lg_rinse",
-        "lg_dry_level",
-        "lg_remote_control",
-        "lg_operation_mode",
-        "lg_cycle_count",
-        "lg_thinq2_status",
-        "lg_course_count"
-      ],
-      "images": {
-        "small": "/drivers/washer/assets/images/small.png",
-        "large": "/drivers/washer/assets/images/large.png",
-        "xlarge": "/drivers/washer/assets/images/xlarge.png"
-      },
-      "pair": [
-        {
-          "id": "login",
-          "options": {
-            "logo": "pair.svg"
-          }
-        },
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_devices",
-            "prev": "login"
-          }
-        },
-        {
-          "id": "add_devices",
-          "template": "add_devices"
-        }
-      ]
-    }
+  "permissions": [
+    "homey:manager:api"
   ],
+  "homepage": "https://github.com/spikerm/Homey-LG-Think",
+  "support": "https://github.com/spikerm/Homey-LG-Think/issues",
   "flow": {
     "triggers": [
       {
-        "id": "child_lock_disabled",
         "title": {
           "en": "Child lock disabled",
           "nl": "Kinderslot uitgeschakeld"
@@ -1038,10 +44,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "child_lock_disabled"
       },
       {
-        "id": "child_lock_enabled",
         "title": {
           "en": "Child lock enabled",
           "nl": "Kinderslot ingeschakeld"
@@ -1052,10 +58,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "child_lock_enabled"
       },
       {
-        "id": "door_locked",
         "title": {
           "en": "Door locked",
           "nl": "Deur vergrendeld"
@@ -1066,10 +72,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "door_locked"
       },
       {
-        "id": "door_unlocked",
         "title": {
           "en": "Door unlocked",
           "nl": "Deur ontgrendeld"
@@ -1080,10 +86,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "door_unlocked"
       },
       {
-        "id": "drying_started",
         "title": {
           "en": "Drying started",
           "nl": "Drogen gestart"
@@ -1094,10 +100,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "drying_started"
       },
       {
-        "id": "program_changed",
         "title": {
           "en": "Program changed",
           "nl": "Wasprogramma gewijzigd"
@@ -1118,10 +124,10 @@
               "nl": "Programma"
             }
           }
-        ]
+        ],
+        "id": "program_changed"
       },
       {
-        "id": "remote_start_disabled",
         "title": {
           "en": "Remote Start disabled",
           "nl": "Afstandsbediening uitgeschakeld"
@@ -1132,10 +138,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "remote_start_disabled"
       },
       {
-        "id": "remote_start_enabled",
         "title": {
           "en": "Remote Start enabled",
           "nl": "Afstandsbediening ingeschakeld"
@@ -1146,10 +152,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "remote_start_enabled"
       },
       {
-        "id": "rinsing_started",
         "title": {
           "en": "Rinsing started",
           "nl": "Spoelen gestart"
@@ -1160,126 +166,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
-      },
-      {
-        "id": "spinning_started",
-        "title": {
-          "en": "Spinning started",
-          "nl": "Centrifugeren gestart"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "driver_id=washer"
-          }
-        ]
-      },
-      {
-        "id": "state_changed",
-        "title": {
-          "en": "State changed",
-          "nl": "Status gewijzigd"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "driver_id=washer"
-          }
         ],
-        "tokens": [
-          {
-            "name": "state",
-            "type": "string",
-            "title": {
-              "en": "State",
-              "nl": "Status"
-            }
-          }
-        ]
+        "id": "rinsing_started"
       },
       {
-        "id": "washing_started",
-        "title": {
-          "en": "Washing started",
-          "nl": "Wassen gestart"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "driver_id=washer"
-          }
-        ]
-      },
-      {
-        "id": "washing_finished",
-        "title": {
-          "en": "Washing finished",
-          "nl": "Wasprogramma klaar"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "driver_id=washer"
-          }
-        ],
-        "tokens": [
-          {
-            "name": "program",
-            "type": "string",
-            "title": {
-              "en": "Program",
-              "nl": "Programma"
-            }
-          },
-          {
-            "name": "message",
-            "type": "string",
-            "title": {
-              "en": "Message",
-              "nl": "Bericht"
-            }
-          }
-        ]
-      },
-      {
-        "id": "washer_error",
-        "title": {
-          "en": "Washer error",
-          "nl": "Wasmachine storing"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "driver_id=washer"
-          }
-        ],
-        "tokens": [
-          {
-            "name": "error",
-            "type": "string",
-            "title": {
-              "en": "Error",
-              "nl": "Foutmelding"
-            }
-          },
-          {
-            "name": "message",
-            "type": "string",
-            "title": {
-              "en": "Message",
-              "nl": "Bericht"
-            }
-          }
-        ]
-      },
-      {
-        "id": "smart_wash_planned",
         "title": {
           "en": "Smart wash planned",
           "nl": "Slim wassen gepland"
@@ -1348,10 +238,58 @@
               "nl": "Bericht"
             }
           }
-        ]
+        ],
+        "id": "smart_wash_planned"
       },
       {
-        "id": "smart_wash_replanned",
+        "title": {
+          "en": "Remote Start missing for smart wash",
+          "nl": "Remote Start ontbreekt voor planning"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=washer"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "program",
+            "type": "string",
+            "title": {
+              "en": "Program",
+              "nl": "Programma"
+            }
+          },
+          {
+            "name": "start_time",
+            "type": "string",
+            "title": {
+              "en": "Planned start",
+              "nl": "Geplande start"
+            }
+          },
+          {
+            "name": "deadline",
+            "type": "string",
+            "title": {
+              "en": "Deadline",
+              "nl": "Uiterlijk klaar"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "nl": "Bericht"
+            }
+          }
+        ],
+        "id": "smart_wash_remote_missing"
+      },
+      {
         "title": {
           "en": "Smart wash replanned",
           "nl": "Slim wassen automatisch verplaatst"
@@ -1428,50 +366,10 @@
               "nl": "Bericht"
             }
           }
-        ]
-      },
-      {
-        "id": "smart_wash_started",
-        "title": {
-          "en": "Smart wash started automatically",
-          "nl": "Slim wassen automatisch gestart"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "driver_id=washer"
-          }
         ],
-        "tokens": [
-          {
-            "name": "program",
-            "type": "string",
-            "title": {
-              "en": "Program",
-              "nl": "Programma"
-            }
-          },
-          {
-            "name": "start_time",
-            "type": "string",
-            "title": {
-              "en": "Start time",
-              "nl": "Starttijd"
-            }
-          },
-          {
-            "name": "message",
-            "type": "string",
-            "title": {
-              "en": "Message",
-              "nl": "Bericht"
-            }
-          }
-        ]
+        "id": "smart_wash_replanned"
       },
       {
-        "id": "smart_wash_start_failed",
         "title": {
           "en": "Smart wash start failed",
           "nl": "Slim wassen start mislukt"
@@ -1508,13 +406,13 @@
               "nl": "Bericht"
             }
           }
-        ]
+        ],
+        "id": "smart_wash_start_failed"
       },
       {
-        "id": "smart_wash_remote_missing",
         "title": {
-          "en": "Remote Start missing for smart wash",
-          "nl": "Remote Start ontbreekt voor planning"
+          "en": "Smart wash started automatically",
+          "nl": "Slim wassen automatisch gestart"
         },
         "args": [
           {
@@ -1536,16 +434,8 @@
             "name": "start_time",
             "type": "string",
             "title": {
-              "en": "Planned start",
-              "nl": "Geplande start"
-            }
-          },
-          {
-            "name": "deadline",
-            "type": "string",
-            "title": {
-              "en": "Deadline",
-              "nl": "Uiterlijk klaar"
+              "en": "Start time",
+              "nl": "Starttijd"
             }
           },
           {
@@ -1556,12 +446,128 @@
               "nl": "Bericht"
             }
           }
-        ]
+        ],
+        "id": "smart_wash_started"
+      },
+      {
+        "title": {
+          "en": "Spinning started",
+          "nl": "Centrifugeren gestart"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=washer"
+          }
+        ],
+        "id": "spinning_started"
+      },
+      {
+        "title": {
+          "en": "State changed",
+          "nl": "Status gewijzigd"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=washer"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "state",
+            "type": "string",
+            "title": {
+              "en": "State",
+              "nl": "Status"
+            }
+          }
+        ],
+        "id": "state_changed"
+      },
+      {
+        "title": {
+          "en": "Washer error",
+          "nl": "Wasmachine storing"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=washer"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "error",
+            "type": "string",
+            "title": {
+              "en": "Error",
+              "nl": "Foutmelding"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "nl": "Bericht"
+            }
+          }
+        ],
+        "id": "washer_error"
+      },
+      {
+        "title": {
+          "en": "Washing finished",
+          "nl": "Wasprogramma klaar"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=washer"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "program",
+            "type": "string",
+            "title": {
+              "en": "Program",
+              "nl": "Programma"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "nl": "Bericht"
+            }
+          }
+        ],
+        "id": "washing_finished"
+      },
+      {
+        "title": {
+          "en": "Washing started",
+          "nl": "Wassen gestart"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=washer"
+          }
+        ],
+        "id": "washing_started"
       }
     ],
     "conditions": [
       {
-        "id": "has_error",
         "title": {
           "en": "Washer has an error",
           "nl": "Wasmachine heeft een storing"
@@ -1572,10 +578,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "has_error"
       },
       {
-        "id": "is_child_lock_enabled",
         "title": {
           "en": "Child lock is enabled",
           "nl": "Kinderslot is ingeschakeld"
@@ -1586,10 +592,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "is_child_lock_enabled"
       },
       {
-        "id": "is_door_locked",
         "title": {
           "en": "Door is locked",
           "nl": "Deur is vergrendeld"
@@ -1600,10 +606,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "is_door_locked"
       },
       {
-        "id": "is_remote_start_enabled",
         "title": {
           "en": "Remote Start is enabled",
           "nl": "Afstandsbediening is actief"
@@ -1614,10 +620,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "is_remote_start_enabled"
       },
       {
-        "id": "is_running",
         "title": {
           "en": "Washer is active",
           "nl": "Wasmachine is actief"
@@ -1628,10 +634,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "is_running"
       },
       {
-        "id": "program_is",
         "title": {
           "en": "Program is",
           "nl": "Wasprogramma is"
@@ -1654,10 +660,10 @@
         "titleFormatted": {
           "en": "Program is [[program]]",
           "nl": "Programma is [[program]]"
-        }
+        },
+        "id": "program_is"
       },
       {
-        "id": "state_is",
         "title": {
           "en": "State is",
           "nl": "Status is"
@@ -1773,10 +779,10 @@
         "titleFormatted": {
           "en": "State is [[state]]",
           "nl": "Status is [[state]]"
-        }
+        },
+        "id": "state_is"
       },
       {
-        "id": "thinq2_is_online",
         "title": {
           "en": "ThinQ2 is online",
           "nl": "ThinQ2 is online"
@@ -1787,12 +793,12 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "thinq2_is_online"
       }
     ],
     "actions": [
       {
-        "id": "download_smart_course",
         "title": {
           "en": "Download extra program",
           "nl": "Download extra programma"
@@ -1815,10 +821,10 @@
         "titleFormatted": {
           "en": "Download extra program [[program]]",
           "nl": "Download extra programma [[program]]"
-        }
+        },
+        "id": "download_smart_course"
       },
       {
-        "id": "dump_profile",
         "title": {
           "en": "Dump ThinQ profile to log",
           "nl": "Schrijf ThinQ-profiel naar log"
@@ -1829,10 +835,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "dump_profile"
       },
       {
-        "id": "dump_thinq2_courses",
         "title": {
           "en": "Dump ThinQ2 courses to log",
           "nl": "Schrijf ThinQ2 programma's naar log"
@@ -1843,10 +849,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "dump_thinq2_courses"
       },
       {
-        "id": "pause_washer",
         "title": {
           "en": "Pause washer",
           "nl": "Pauzeer wasmachine"
@@ -1857,10 +863,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "pause_washer"
       },
       {
-        "id": "power_off_washer",
         "title": {
           "en": "Power off washer",
           "nl": "Schakel wasmachine uit"
@@ -1871,10 +877,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "power_off_washer"
       },
       {
-        "id": "refresh_washer",
         "title": {
           "en": "Refresh washer now",
           "nl": "Ververs wasmachine nu"
@@ -1885,10 +891,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "refresh_washer"
       },
       {
-        "id": "select_program",
         "title": {
           "en": "Select wash program",
           "nl": "Selecteer wasprogramma"
@@ -1919,10 +925,10 @@
         "titleFormatted": {
           "en": "Select wash program [[program]]",
           "nl": "Selecteer wasprogramma [[program]]"
-        }
+        },
+        "id": "select_program"
       },
       {
-        "id": "set_delay_end",
         "title": {
           "en": "Set delay end",
           "nl": "Stel uitgestelde eindtijd in"
@@ -2073,10 +1079,10 @@
         "titleFormatted": {
           "en": "Set delay end to [[hours]]",
           "nl": "Stel uitgestelde eindtijd in op [[hours]]"
-        }
+        },
+        "id": "set_delay_end"
       },
       {
-        "id": "set_dry_level",
         "title": {
           "en": "Set dry level",
           "nl": "Stel droogniveau in"
@@ -2099,10 +1105,10 @@
         "titleFormatted": {
           "en": "Set dry level to [[value]]",
           "nl": "Stel droogniveau in op [[value]]"
-        }
+        },
+        "id": "set_dry_level"
       },
       {
-        "id": "set_eco_hybrid",
         "title": {
           "en": "Set Eco Hybrid",
           "nl": "Stel Eco Hybrid in"
@@ -2125,10 +1131,10 @@
         "titleFormatted": {
           "en": "Set Eco Hybrid to [[enabled]]",
           "nl": "Stel Eco Hybrid in op [[enabled]]"
-        }
+        },
+        "id": "set_eco_hybrid"
       },
       {
-        "id": "set_load_item",
         "title": {
           "en": "Set add-item option",
           "nl": "Stel was toevoegen in"
@@ -2181,10 +1187,10 @@
         "titleFormatted": {
           "en": "Set add-item to [[value]]",
           "nl": "Stel was toevoegen in op [[value]]"
-        }
+        },
+        "id": "set_load_item"
       },
       {
-        "id": "set_medic_rinse",
         "title": {
           "en": "Set medic rinse",
           "nl": "Stel extra hygiënisch spoelen in"
@@ -2207,10 +1213,10 @@
         "titleFormatted": {
           "en": "Set medic rinse to [[enabled]]",
           "nl": "Stel hygiënisch spoelen in op [[enabled]]"
-        }
+        },
+        "id": "set_medic_rinse"
       },
       {
-        "id": "set_prewash",
         "title": {
           "en": "Set prewash",
           "nl": "Stel voorwas in"
@@ -2233,10 +1239,10 @@
         "titleFormatted": {
           "en": "Set prewash to [[enabled]]",
           "nl": "Stel voorwas in op [[enabled]]"
-        }
+        },
+        "id": "set_prewash"
       },
       {
-        "id": "set_rinse",
         "title": {
           "en": "Set rinse",
           "nl": "Stel spoelen in"
@@ -2259,10 +1265,10 @@
         "titleFormatted": {
           "en": "Set rinse to [[value]]",
           "nl": "Stel spoelen in op [[value]]"
-        }
+        },
+        "id": "set_rinse"
       },
       {
-        "id": "set_soil_wash",
         "title": {
           "en": "Set wash intensity",
           "nl": "Stel wasintensiteit in"
@@ -2315,10 +1321,10 @@
         "titleFormatted": {
           "en": "Set wash intensity to [[value]]",
           "nl": "Stel wasintensiteit in op [[value]]"
-        }
+        },
+        "id": "set_soil_wash"
       },
       {
-        "id": "set_spin",
         "title": {
           "en": "Set spin speed",
           "nl": "Stel centrifugetoerental in"
@@ -2341,10 +1347,10 @@
         "titleFormatted": {
           "en": "Set spin speed to [[value]]",
           "nl": "Stel centrifugetoerental in op [[value]]"
-        }
+        },
+        "id": "set_spin"
       },
       {
-        "id": "set_steam",
         "title": {
           "en": "Set steam",
           "nl": "Stel stoom in"
@@ -2367,10 +1373,10 @@
         "titleFormatted": {
           "en": "Set steam to [[enabled]]",
           "nl": "Stel stoom in op [[enabled]]"
-        }
+        },
+        "id": "set_steam"
       },
       {
-        "id": "set_temperature",
         "title": {
           "en": "Set temperature",
           "nl": "Stel temperatuur in"
@@ -2393,10 +1399,10 @@
         "titleFormatted": {
           "en": "Set temperature to [[value]]",
           "nl": "Stel temperatuur in op [[value]]"
-        }
+        },
+        "id": "set_temperature"
       },
       {
-        "id": "set_turbowash",
         "title": {
           "en": "Set TurboWash",
           "nl": "Stel TurboWash in"
@@ -2419,10 +1425,10 @@
         "titleFormatted": {
           "en": "Set TurboWash to [[enabled]]",
           "nl": "Stel TurboWash in op [[enabled]]"
-        }
+        },
+        "id": "set_turbowash"
       },
       {
-        "id": "start_washer",
         "title": {
           "en": "Start washer",
           "nl": "Start wasmachine"
@@ -2433,10 +1439,10 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "start_washer"
       },
       {
-        "id": "wakeup_washer",
         "title": {
           "en": "Wake up washer",
           "nl": "Maak wasmachine wakker"
@@ -2447,17 +1453,78 @@
             "type": "device",
             "filter": "driver_id=washer"
           }
-        ]
+        ],
+        "id": "wakeup_washer"
       }
     ]
   },
-  "images": {
-    "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
-  },
-  "permissions": [
-    "homey:manager:api"
+  "drivers": [
+    {
+      "name": {
+        "en": "LG Washer",
+        "nl": "LG Wasmachine"
+      },
+      "class": "washer",
+      "capabilities": [
+        "lg_program_select",
+        "lg_temp_select",
+        "lg_spin_select",
+        "lg_rinse_select",
+        "lg_dry_select",
+        "lg_soil_select",
+        "lg_prewash_toggle",
+        "lg_turbowash_toggle",
+        "lg_steam_toggle",
+        "lg_medic_rinse_toggle",
+        "lg_eco_hybrid_toggle",
+        "lg_load_item_select",
+        "lg_delay_end_select",
+        "lg_start_button",
+        "lg_pause_button",
+        "lg_wakeup_button",
+        "lg_poweroff_button",
+        "lg_refresh_button",
+        "lg_state",
+        "lg_current_program",
+        "lg_remaining",
+        "lg_total",
+        "lg_temperature",
+        "lg_spin",
+        "lg_rinse",
+        "lg_dry_level",
+        "lg_remote_control",
+        "lg_operation_mode",
+        "lg_cycle_count",
+        "lg_thinq2_status",
+        "lg_course_count"
+      ],
+      "images": {
+        "small": "/drivers/washer/assets/images/small.png",
+        "large": "/drivers/washer/assets/images/large.png",
+        "xlarge": "/drivers/washer/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "login",
+          "options": {
+            "logo": "pair.svg"
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices",
+            "prev": "login"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "washer"
+    }
   ],
   "widgets": {
     "smart-wash": {
@@ -2506,9 +1573,987 @@
           "method": "GET",
           "path": "/live"
         }
-      }
+      },
+      "id": "smart-wash",
+      "settings": []
+    },
+    "thinq-dashboard": {
+      "name": {
+        "en": "ThinQ Dashboard",
+        "nl": "ThinQ Overzicht"
+      },
+      "description": {
+        "en": "Live status and quick controls for your LG ThinQ appliance.",
+        "nl": "Live status en snelle bediening voor je LG ThinQ-apparaat."
+      },
+      "height": 330,
+      "devices": {
+        "type": "app",
+        "singular": true,
+        "filter": {
+          "class": "washer"
+        }
+      },
+      "api": {
+        "getOverview": {
+          "method": "GET",
+          "path": "/overview"
+        },
+        "refresh": {
+          "method": "POST",
+          "path": "/refresh"
+        },
+        "pause": {
+          "method": "POST",
+          "path": "/pause"
+        },
+        "powerOff": {
+          "method": "POST",
+          "path": "/power-off"
+        },
+        "wake": {
+          "method": "POST",
+          "path": "/wake"
+        }
+      },
+      "id": "thinq-dashboard",
+      "settings": []
     }
   },
-  "homepage": "https://github.com/spikerm/Homey-LG-Think",
-  "support": "https://github.com/spikerm/Homey-LG-Think/issues"
+  "capabilities": {
+    "lg_course_count": {
+      "type": "number",
+      "title": {
+        "en": "Course count",
+        "nl": "Aantal programma's"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg"
+    },
+    "lg_current_program": {
+      "type": "string",
+      "title": {
+        "en": "Current program",
+        "nl": "Huidig programma"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg"
+    },
+    "lg_cycle_count": {
+      "type": "number",
+      "title": {
+        "en": "Cycle count",
+        "nl": "Aantal cycli"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/cycles.svg"
+    },
+    "lg_delay_end_select": {
+      "type": "enum",
+      "title": {
+        "en": "Delay end",
+        "nl": "Uitgestelde eindtijd"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "icon": "/assets/capabilities/time.svg",
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "Off",
+            "nl": "Uit"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "3 hours",
+            "nl": "3 uur"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "4 hours",
+            "nl": "4 uur"
+          }
+        },
+        {
+          "id": "5",
+          "title": {
+            "en": "5 hours",
+            "nl": "5 uur"
+          }
+        },
+        {
+          "id": "6",
+          "title": {
+            "en": "6 hours",
+            "nl": "6 uur"
+          }
+        },
+        {
+          "id": "7",
+          "title": {
+            "en": "7 hours",
+            "nl": "7 uur"
+          }
+        },
+        {
+          "id": "8",
+          "title": {
+            "en": "8 hours",
+            "nl": "8 uur"
+          }
+        },
+        {
+          "id": "9",
+          "title": {
+            "en": "9 hours",
+            "nl": "9 uur"
+          }
+        },
+        {
+          "id": "10",
+          "title": {
+            "en": "10 hours",
+            "nl": "10 uur"
+          }
+        },
+        {
+          "id": "11",
+          "title": {
+            "en": "11 hours",
+            "nl": "11 uur"
+          }
+        },
+        {
+          "id": "12",
+          "title": {
+            "en": "12 hours",
+            "nl": "12 uur"
+          }
+        },
+        {
+          "id": "13",
+          "title": {
+            "en": "13 hours",
+            "nl": "13 uur"
+          }
+        },
+        {
+          "id": "14",
+          "title": {
+            "en": "14 hours",
+            "nl": "14 uur"
+          }
+        },
+        {
+          "id": "15",
+          "title": {
+            "en": "15 hours",
+            "nl": "15 uur"
+          }
+        },
+        {
+          "id": "16",
+          "title": {
+            "en": "16 hours",
+            "nl": "16 uur"
+          }
+        },
+        {
+          "id": "17",
+          "title": {
+            "en": "17 hours",
+            "nl": "17 uur"
+          }
+        },
+        {
+          "id": "18",
+          "title": {
+            "en": "18 hours",
+            "nl": "18 uur"
+          }
+        },
+        {
+          "id": "19",
+          "title": {
+            "en": "19 hours",
+            "nl": "19 uur"
+          }
+        }
+      ]
+    },
+    "lg_dry_level": {
+      "type": "string",
+      "title": {
+        "en": "Dry level",
+        "nl": "Droogniveau"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/dry.svg"
+    },
+    "lg_dry_select": {
+      "type": "enum",
+      "title": {
+        "en": "Dry level setting",
+        "nl": "Droogniveau instellen"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "icon": "/assets/capabilities/dry.svg",
+      "values": [
+        {
+          "id": "NOT_SELECTED",
+          "title": {
+            "en": "Not selected",
+            "nl": "Niet geselecteerd"
+          }
+        },
+        {
+          "id": "NO_DRYLEVEL",
+          "title": {
+            "en": "No drying",
+            "nl": "Niet drogen"
+          }
+        },
+        {
+          "id": "DRYLEVEL_NORMAL",
+          "title": {
+            "en": "Normal",
+            "nl": "Normaal"
+          }
+        },
+        {
+          "id": "DRYLEVEL_30",
+          "title": {
+            "en": "30 minutes",
+            "nl": "30 minuten"
+          }
+        },
+        {
+          "id": "DRYLEVEL_60",
+          "title": {
+            "en": "60 minutes",
+            "nl": "60 minuten"
+          }
+        },
+        {
+          "id": "DRYLEVEL_90",
+          "title": {
+            "en": "90 minutes",
+            "nl": "90 minuten"
+          }
+        },
+        {
+          "id": "DRYLEVEL_120",
+          "title": {
+            "en": "120 minutes",
+            "nl": "120 minuten"
+          }
+        },
+        {
+          "id": "DRYLEVEL_150",
+          "title": {
+            "en": "150 minutes",
+            "nl": "150 minuten"
+          }
+        },
+        {
+          "id": "DRYLEVEL_ECO",
+          "title": {
+            "en": "Eco",
+            "nl": "Eco"
+          }
+        },
+        {
+          "id": "DRYLEVEL_VERY",
+          "title": {
+            "en": "Extra dry",
+            "nl": "Extra droog"
+          }
+        },
+        {
+          "id": "DRYLEVEL_IRON",
+          "title": {
+            "en": "Iron dry",
+            "nl": "Strijkdroog"
+          }
+        },
+        {
+          "id": "DRYLEVEL_LOW",
+          "title": {
+            "en": "Low temperature",
+            "nl": "Lage temperatuur"
+          }
+        },
+        {
+          "id": "DRYLEVEL_ENERGY",
+          "title": {
+            "en": "Energy",
+            "nl": "Energie"
+          }
+        },
+        {
+          "id": "DRYLEVEL_SPEED",
+          "title": {
+            "en": "Speed",
+            "nl": "Snel"
+          }
+        }
+      ]
+    },
+    "lg_eco_hybrid_toggle": {
+      "type": "boolean",
+      "title": {
+        "en": "Eco Hybrid",
+        "nl": "Eco Hybrid"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg"
+    },
+    "lg_load_item_select": {
+      "type": "enum",
+      "title": {
+        "en": "Add item",
+        "nl": "Was toevoegen"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg",
+      "values": [
+        {
+          "id": "LOADITEM_OFF",
+          "title": {
+            "en": "Off",
+            "nl": "Uit"
+          }
+        },
+        {
+          "id": "LOADITEM_1",
+          "title": {
+            "en": "Level 1",
+            "nl": "Niveau 1"
+          }
+        },
+        {
+          "id": "LOADITEM_2",
+          "title": {
+            "en": "Level 2",
+            "nl": "Niveau 2"
+          }
+        },
+        {
+          "id": "LOADITEM_3",
+          "title": {
+            "en": "Level 3",
+            "nl": "Niveau 3"
+          }
+        }
+      ]
+    },
+    "lg_medic_rinse_toggle": {
+      "type": "boolean",
+      "title": {
+        "en": "Medic rinse",
+        "nl": "Hygiënisch spoelen"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg"
+    },
+    "lg_operation_mode": {
+      "type": "string",
+      "title": {
+        "en": "Operation mode",
+        "nl": "Bedieningsmodus"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/mode.svg"
+    },
+    "lg_pause_button": {
+      "type": "boolean",
+      "title": {
+        "en": "Pause washer",
+        "nl": "Wasmachine pauzeren"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "insights": false,
+      "icon": "/assets/capabilities/status.svg"
+    },
+    "lg_poweroff_button": {
+      "type": "boolean",
+      "title": {
+        "en": "Power off washer",
+        "nl": "Wasmachine uitschakelen"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "insights": false,
+      "icon": "/assets/capabilities/status.svg"
+    },
+    "lg_prewash_toggle": {
+      "type": "boolean",
+      "title": {
+        "en": "Prewash",
+        "nl": "Voorwas"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg"
+    },
+    "lg_program_select": {
+      "type": "enum",
+      "title": {
+        "en": "Program",
+        "nl": "Wasprogramma"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg",
+      "values": [
+        {
+          "id": "COTTON",
+          "title": {
+            "en": "Katoen",
+            "nl": "Katoen"
+          }
+        },
+        {
+          "id": "EASYCARE",
+          "title": {
+            "en": "Easy Care",
+            "nl": "Easy Care"
+          }
+        },
+        {
+          "id": "COTTONPLUS",
+          "title": {
+            "en": "Eco 40-60",
+            "nl": "Eco 40-60"
+          }
+        },
+        {
+          "id": "MIXEDFABRIC",
+          "title": {
+            "en": "Mix",
+            "nl": "Mix"
+          }
+        },
+        {
+          "id": "BABYSTEAMCARE",
+          "title": {
+            "en": "Baby Steam Care",
+            "nl": "Baby Steam Care"
+          }
+        },
+        {
+          "id": "SPEED14",
+          "title": {
+            "en": "Snel 14",
+            "nl": "Snel 14"
+          }
+        },
+        {
+          "id": "TUB_CLEAN",
+          "title": {
+            "en": "Trommelreiniging",
+            "nl": "Trommelreiniging"
+          }
+        },
+        {
+          "id": "WOOL",
+          "title": {
+            "en": "Wol",
+            "nl": "Wol"
+          }
+        },
+        {
+          "id": "DELICATE",
+          "title": {
+            "en": "Fijne was",
+            "nl": "Fijne was"
+          }
+        },
+        {
+          "id": "ALLERGYSPASTEAM",
+          "title": {
+            "en": "Allergie/Stoom",
+            "nl": "Allergie/Stoom"
+          }
+        },
+        {
+          "id": "TURBO59",
+          "title": {
+            "en": "Turbo Wash 59",
+            "nl": "Turbo Wash 59"
+          }
+        },
+        {
+          "id": "DRYONLY",
+          "title": {
+            "en": "Alleen drogen",
+            "nl": "Alleen drogen"
+          }
+        },
+        {
+          "id": "WASHDRY",
+          "title": {
+            "en": "Wassen + drogen",
+            "nl": "Wassen + drogen"
+          }
+        },
+        {
+          "id": "SPINONLY",
+          "title": {
+            "en": "Spin only",
+            "nl": "Alleen centrifugeren"
+          }
+        }
+      ]
+    },
+    "lg_refresh_button": {
+      "type": "boolean",
+      "title": {
+        "en": "Refresh now",
+        "nl": "Nu verversen"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "insights": false,
+      "icon": "/assets/capabilities/status.svg"
+    },
+    "lg_remaining": {
+      "type": "string",
+      "title": {
+        "en": "Remaining time",
+        "nl": "Resterende tijd"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/time.svg"
+    },
+    "lg_remote_control": {
+      "type": "boolean",
+      "title": {
+        "en": "Remote control",
+        "nl": "Afstandsbediening"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/remote.svg"
+    },
+    "lg_rinse": {
+      "type": "string",
+      "title": {
+        "en": "Rinse",
+        "nl": "Spoelen"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/rinse.svg"
+    },
+    "lg_rinse_select": {
+      "type": "enum",
+      "title": {
+        "en": "Rinse setting",
+        "nl": "Spoelen instellen"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "icon": "/assets/capabilities/rinse.svg",
+      "values": [
+        {
+          "id": "RINSE_NORMAL",
+          "title": {
+            "en": "Normal",
+            "nl": "Normaal"
+          }
+        },
+        {
+          "id": "RINSE_PLUS",
+          "title": {
+            "en": "Extra",
+            "nl": "Extra"
+          }
+        },
+        {
+          "id": "RINSE_PLUSPLUS",
+          "title": {
+            "en": "Extra +",
+            "nl": "Extra +"
+          }
+        },
+        {
+          "id": "RINSE_NORMAL_HOLD",
+          "title": {
+            "en": "Normal + hold",
+            "nl": "Normaal + stop"
+          }
+        },
+        {
+          "id": "RINSE_PLUS_HOLD",
+          "title": {
+            "en": "Extra + hold",
+            "nl": "Extra + stop"
+          }
+        }
+      ]
+    },
+    "lg_soil_select": {
+      "type": "enum",
+      "title": {
+        "en": "Wash intensity",
+        "nl": "Wasintensiteit"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg",
+      "values": [
+        {
+          "id": "NO_SOILWASH",
+          "title": {
+            "en": "Not selected",
+            "nl": "Niet geselecteerd"
+          }
+        },
+        {
+          "id": "SOILWASH_NORMAL",
+          "title": {
+            "en": "Normal",
+            "nl": "Normaal"
+          }
+        },
+        {
+          "id": "SOILWASH_INTENSIVE",
+          "title": {
+            "en": "Intensive",
+            "nl": "Intensief"
+          }
+        },
+        {
+          "id": "SOILWASH_TIMESAVE",
+          "title": {
+            "en": "Time save",
+            "nl": "Tijdbesparing"
+          }
+        },
+        {
+          "id": "SOILWASH_TURBO_WASH",
+          "title": {
+            "en": "Turbo wash",
+            "nl": "Turbo wash"
+          }
+        }
+      ]
+    },
+    "lg_spin": {
+      "type": "string",
+      "title": {
+        "en": "Spin",
+        "nl": "Centrifugeren"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/spin.svg"
+    },
+    "lg_spin_select": {
+      "type": "enum",
+      "title": {
+        "en": "Spin setting",
+        "nl": "Centrifugeren instellen"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "icon": "/assets/capabilities/spin.svg",
+      "values": [
+        {
+          "id": "NO_SPIN",
+          "title": {
+            "en": "No spin",
+            "nl": "Niet centrifugeren"
+          }
+        },
+        {
+          "id": "SPIN_400",
+          "title": {
+            "en": "400 rpm",
+            "nl": "400 rpm"
+          }
+        },
+        {
+          "id": "SPIN_600",
+          "title": {
+            "en": "600 rpm",
+            "nl": "600 rpm"
+          }
+        },
+        {
+          "id": "SPIN_700",
+          "title": {
+            "en": "700 rpm",
+            "nl": "700 rpm"
+          }
+        },
+        {
+          "id": "SPIN_800",
+          "title": {
+            "en": "800 rpm",
+            "nl": "800 rpm"
+          }
+        },
+        {
+          "id": "SPIN_900",
+          "title": {
+            "en": "900 rpm",
+            "nl": "900 rpm"
+          }
+        },
+        {
+          "id": "SPIN_1000",
+          "title": {
+            "en": "1000 rpm",
+            "nl": "1000 rpm"
+          }
+        },
+        {
+          "id": "SPIN_1100",
+          "title": {
+            "en": "1100 rpm",
+            "nl": "1100 rpm"
+          }
+        },
+        {
+          "id": "SPIN_1200",
+          "title": {
+            "en": "1200 rpm",
+            "nl": "1200 rpm"
+          }
+        },
+        {
+          "id": "SPIN_1600",
+          "title": {
+            "en": "1600 rpm",
+            "nl": "1600 rpm"
+          }
+        },
+        {
+          "id": "SPIN_Max",
+          "title": {
+            "en": "Maximum",
+            "nl": "Maximum"
+          }
+        }
+      ]
+    },
+    "lg_start_button": {
+      "type": "boolean",
+      "title": {
+        "en": "Start washer",
+        "nl": "Wasmachine starten"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg"
+    },
+    "lg_state": {
+      "type": "string",
+      "title": {
+        "en": "State",
+        "nl": "Status"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/status.svg"
+    },
+    "lg_steam_toggle": {
+      "type": "boolean",
+      "title": {
+        "en": "Steam",
+        "nl": "Stoom"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg"
+    },
+    "lg_temp_select": {
+      "type": "enum",
+      "title": {
+        "en": "Temperature setting",
+        "nl": "Temperatuur instellen"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "icon": "/assets/capabilities/temp.svg",
+      "values": [
+        {
+          "id": "TEMP_COLD",
+          "title": {
+            "en": "Cold",
+            "nl": "Koud"
+          }
+        },
+        {
+          "id": "TEMP_20",
+          "title": {
+            "en": "20 °C",
+            "nl": "20 °C"
+          }
+        },
+        {
+          "id": "TEMP_30",
+          "title": {
+            "en": "30 °C",
+            "nl": "30 °C"
+          }
+        },
+        {
+          "id": "TEMP_40",
+          "title": {
+            "en": "40 °C",
+            "nl": "40 °C"
+          }
+        },
+        {
+          "id": "TEMP_50",
+          "title": {
+            "en": "50 °C",
+            "nl": "50 °C"
+          }
+        },
+        {
+          "id": "TEMP_60",
+          "title": {
+            "en": "60 °C",
+            "nl": "60 °C"
+          }
+        },
+        {
+          "id": "TEMP_95",
+          "title": {
+            "en": "95 °C",
+            "nl": "95 °C"
+          }
+        }
+      ]
+    },
+    "lg_temperature": {
+      "type": "string",
+      "title": {
+        "en": "Temperature",
+        "nl": "Temperatuur"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/temp.svg"
+    },
+    "lg_thinq2_status": {
+      "type": "string",
+      "title": {
+        "en": "ThinQ2 status",
+        "nl": "ThinQ2 status"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/cloud.svg"
+    },
+    "lg_total": {
+      "type": "string",
+      "title": {
+        "en": "Total time",
+        "nl": "Totale tijd"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/time.svg"
+    },
+    "lg_turbowash_toggle": {
+      "type": "boolean",
+      "title": {
+        "en": "TurboWash",
+        "nl": "TurboWash"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "insights": false,
+      "icon": "/assets/capabilities/program.svg"
+    },
+    "lg_wakeup_button": {
+      "type": "boolean",
+      "title": {
+        "en": "Wake washer",
+        "nl": "Uit slaapstand halen"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "insights": false,
+      "icon": "/assets/capabilities/mode.svg"
+    }
+  }
 }

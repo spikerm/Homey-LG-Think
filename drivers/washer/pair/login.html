@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { padding:18px; font-family:sans-serif; }
+    h2 { margin-top:0; }
+    .section { margin-top:18px; margin-bottom:8px; font-weight:700; }
+    .field { margin-bottom:14px; }
+    label { display:block; margin-bottom:6px; font-weight:600; }
+    input { width:100%; box-sizing:border-box; padding:10px; }
+    button { width:100%; padding:12px; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.5; cursor:default; }
+    .hint { opacity:.75; font-size:.9em; margin-top:5px; }
+    #status {
+      margin-top:14px;
+      min-height:62px;
+      white-space:pre-wrap;
+      line-height:1.45;
+    }
+  </style>
+</head>
+<body>
+  <h2>LG ThinQ verbinden</h2>
+  <p>We testen op één scherm de officiële ThinQ Connect API én ThinQ2 voor wasprogramma-data.</p>
+
+  <div class="section">ThinQ Connect</div>
+  <div class="field">
+    <label for="token">Personal Access Token</label>
+    <input id="token" type="password" autocomplete="off" placeholder="ThinQ Connect token">
+  </div>
+
+  <div class="section">ThinQ2</div>
+  <div class="field">
+    <label for="email">LG-account e-mail</label>
+    <input id="email" type="email" autocomplete="username" placeholder="naam@voorbeeld.nl">
+  </div>
+
+  <div class="field">
+    <label for="password">LG-account wachtwoord</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <div class="hint">Het wachtwoord wordt niet opgeslagen.</div>
+  </div>
+
+  <div class="section">Regio</div>
+  <div class="field">
+    <label for="country">Landcode</label>
+    <input id="country" type="text" value="NL" maxlength="2">
+  </div>
+
+  <div class="field">
+    <label for="language">Taalcode</label>
+    <input id="language" type="text" value="nl-NL">
+  </div>
+
+  <button id="connect" type="button">Verbinden en testen</button>
+  <div id="status"></div>
+
+<script>
+(async function () {
+  Homey.setTitle('LG ThinQ verbinden');
+
+  const button = document.getElementById('connect');
+  const status = document.getElementById('status');
+
+  button.addEventListener('click', async () => {
+    const payload = {
+      token: document.getElementById('token').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+      country: (document.getElementById('country').value.trim() || 'NL').toUpperCase(),
+      language: document.getElementById('language').value.trim() || 'nl-NL'
+    };
+
+    if (!payload.token) {
+      await Homey.alert('Vul de ThinQ Connect Personal Access Token in.', 'warning');
+      return;
+    }
+    if (!payload.email || !payload.password) {
+      await Homey.alert('Vul LG-account e-mail en wachtwoord in.', 'warning');
+      return;
+    }
+
+    button.disabled = true;
+    status.textContent = 'ThinQ Connect: testen...\nThinQ2: wachten...';
+    Homey.showLoadingOverlay();
+
+    try {
+      const result = await Homey.emit('combined_login', payload);
+
+      const connectLine = result?.connect?.ok
+        ? `ThinQ Connect: OK (${result.connect.count || 0} apparaat/apparaten)`
+        : `ThinQ Connect: FOUT - ${result?.connect?.message || 'onbekende fout'}`;
+
+      const legacyLine = result?.legacy?.ok
+        ? `ThinQ2: OK (${result.legacy.count || 0} apparaat/apparaten)`
+        : `ThinQ2: FOUT - ${result?.legacy?.message || 'onbekende fout'}`;
+
+      status.textContent = connectLine + '\n' + legacyLine;
+
+      if (!result?.connect?.ok) {
+        throw new Error('ThinQ Connect moet eerst werken.');
+      }
+      if (!result?.legacy?.ok) {
+        throw new Error('ThinQ2 login mislukt. Zie status en Homey-log.');
+      }
+
+      await Homey.showView('list_devices');
+    } catch (err) {
+      const message = err?.message || String(err);
+      await Homey.alert(message, 'error');
+    } finally {
+      Homey.hideLoadingOverlay();
+      button.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

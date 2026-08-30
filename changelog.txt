@@ -1,0 +1,10 @@
+0.7.1
+- Added GitHub repository metadata.
+- Added GitHub Issues as support and bug-reporting channel.
+- App Store preparation improvements.
+
+0.7.0
+- App renamed to LG ThinQ to prepare for additional ThinQ appliance categories.
+- App Store descriptions and translated store README texts updated.
+- Added App Store review documentation for Homey Energy API access.
+- Current washer and Smart Washing functionality from v0.6.19 retained.

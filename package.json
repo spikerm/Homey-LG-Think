@@ -1,0 +1,23 @@
+{
+  "name": "com.rexm.lgthinq",
+  "version": "0.7.1",
+  "description": "LG ThinQ appliance integration for Homey with smart Energy-aware control",
+  "main": "app.js",
+  "scripts": {
+    "validate": "homey app validate",
+    "run": "homey app run"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "qs": "^6.13.1",
+    "luxon": "^3.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spikerm/Homey-LG-Think.git"
+  },
+  "bugs": {
+    "url": "https://github.com/spikerm/Homey-LG-Think/issues"
+  },
+  "homepage": "https://github.com/spikerm/Homey-LG-Think"
+}

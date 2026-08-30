@@ -1,0 +1,48 @@
+{
+  "name": {
+    "en": "Smart Washing",
+    "nl": "Slim Wassen"
+  },
+  "description": {
+    "en": "Plan your LG washer for the cheapest Homey Energy prices.",
+    "nl": "Plan je LG-wasmachine op de goedkoopste Homey Energy-prijzen."
+  },
+  "height": 620,
+  "devices": {
+    "type": "app",
+    "singular": true,
+    "filter": {
+      "class": "washer"
+    }
+  },
+  "api": {
+    "getState": {
+      "method": "GET",
+      "path": "/state"
+    },
+    "previewPlan": {
+      "method": "POST",
+      "path": "/preview"
+    },
+    "savePlan": {
+      "method": "POST",
+      "path": "/plan"
+    },
+    "cancelPlan": {
+      "method": "DELETE",
+      "path": "/plan"
+    },
+    "startNow": {
+      "method": "POST",
+      "path": "/start-now"
+    },
+    "wake": {
+      "method": "POST",
+      "path": "/wake"
+    },
+    "getLiveStatus": {
+      "method": "GET",
+      "path": "/live"
+    }
+  }
+}

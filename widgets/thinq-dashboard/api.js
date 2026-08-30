@@ -1,5 +1,7 @@
 'use strict';
 
+const { recordFromLive } = require('../../lib/smart-wash-duration');
+
 function device(homey, id) {
   if (!id) throw new Error('Geen LG ThinQ-apparaat geselecteerd in de widget.');
   return homey.app.getWasherDevice(id);
@@ -24,6 +26,7 @@ function triState(raw, onValue, offValue) {
 async function overview(d) {
   const state = d.getWidgetState();
   const live = d.getWidgetLiveStatus();
+  await recordFromLive(d, live).catch(() => {});
   const merged = { ...state, ...live };
   const wd = d._lastWd || {};
 

@@ -22,5 +22,8 @@
   },
   "0.7.9": {
     "en": "fix for prices if program is next day"
+  },
+  "0.7.10": {
+    "en": "pricing fallback added"
   }
 }

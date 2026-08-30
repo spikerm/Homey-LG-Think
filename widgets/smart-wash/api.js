@@ -2,7 +2,9 @@
 
 const {
   recordFromLive,
-  applyLearnedDurations
+  applyLearnedDurations,
+  getProgramLearning,
+  parseDurationMinutes
 } = require('../../lib/smart-wash-duration');
 
 function device(homey, id) {
@@ -14,6 +16,27 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function enrichLive(d, live) {
+  const totalMinutes = parseDurationMinutes(live?.total || d.getCapabilityValue('lg_total'));
+  const remainingMinutes = parseDurationMinutes(live?.remaining || d.getCapabilityValue('lg_remaining'));
+  const progressPercent = Number.isFinite(totalMinutes) && totalMinutes > 0 && Number.isFinite(remainingMinutes)
+    ? Math.max(0, Math.min(100, Math.round(((totalMinutes - remainingMinutes) / totalMinutes) * 100)))
+    : null;
+  const programId = live?.currentProgramId || d._lastProgram || d.getStoreValue('selected_program_id') || null;
+  const learnedDuration = getProgramLearning(d, programId);
+  const plan = d.getStoreValue('smart_wash_plan') || null;
+
+  return {
+    ...live,
+    totalMinutes: Number.isFinite(totalMinutes) ? totalMinutes : null,
+    remainingMinutes: Number.isFinite(remainingMinutes) ? remainingMinutes : null,
+    progressPercent,
+    learnedDuration,
+    planDurationMinutes: Number.isFinite(Number(plan?.durationMinutes)) ? Number(plan.durationMinutes) : null,
+    plannedAveragePrice: Number.isFinite(Number(plan?.averagePrice)) ? Number(plan.averagePrice) : null
+  };
+}
+
 async function getReadyWidgetState(d) {
   // Prefer the device cache. During app startup the widget can open a fraction
   // earlier than the initial ThinQ2 refresh has finished, which previously left
@@ -23,7 +46,7 @@ async function getReadyWidgetState(d) {
   if (Array.isArray(state?.programs) && state.programs.length) {
     const live = d.getWidgetLiveStatus();
     await recordFromLive(d, live).catch(() => {});
-    return applyLearnedDurations(d, state);
+    return { ...applyLearnedDurations(d, state), ...enrichLive(d, live) };
   }
 
   for (let i = 0; i < 6; i++) {
@@ -32,7 +55,7 @@ async function getReadyWidgetState(d) {
     if (Array.isArray(state?.programs) && state.programs.length) {
       const live = d.getWidgetLiveStatus();
       await recordFromLive(d, live).catch(() => {});
-      return applyLearnedDurations(d, state);
+      return { ...applyLearnedDurations(d, state), ...enrichLive(d, live) };
     }
   }
 
@@ -42,7 +65,7 @@ async function getReadyWidgetState(d) {
   state = d.getWidgetState();
   const live = d.getWidgetLiveStatus();
   await recordFromLive(d, live).catch(() => {});
-  return applyLearnedDurations(d, state);
+  return { ...applyLearnedDurations(d, state), ...enrichLive(d, live) };
 }
 
 module.exports = {
@@ -55,7 +78,7 @@ module.exports = {
     const d = device(homey, query.deviceId);
     const live = d.getWidgetLiveStatus();
     await recordFromLive(d, live).catch(() => {});
-    return live;
+    return enrichLive(d, live);
   },
 
   async previewPlan({ homey, body }) {

@@ -4,6 +4,11 @@ const Homey = require('homey');
 const crypto = require('crypto');
 const ThinQConnect = require('../../lib/thinq-connect');
 const ThinQ2Legacy = require('../../lib/thinq2-legacy');
+const {
+  ensureInsightsCapabilities,
+  startInsightsRecorder,
+  recordFromLive
+} = require('../../lib/smart-wash-duration');
 
 function asArray(body) {
   if (Array.isArray(body)) return body;
@@ -56,8 +61,23 @@ function safeErrorMessage(err) {
     .join(' - ');
 }
 
-
 class LGWasherDriver extends Homey.Driver {
+  async onInit() {
+    // Add the new Insights capabilities to already paired washers as well.
+    // The short delay lets device onInit finish first after an app restart.
+    this.homey.setTimeout(async () => {
+      for (const device of this.getDevices()) {
+        try {
+          await ensureInsightsCapabilities(device);
+          await recordFromLive(device, device.getWidgetLiveStatus()).catch(() => {});
+          startInsightsRecorder(device);
+        } catch (err) {
+          this.error('Slim Wassen Insights initialisatie:', safeErrorMessage(err));
+        }
+      }
+    }, 5000);
+  }
+
   async onPair(session) {
     this.log('Pair sessie gestart');
 
@@ -87,7 +107,6 @@ class LGWasherDriver extends Homey.Driver {
         legacy: { ok: false, count: 0, message: '' }
       };
 
-      // Official ThinQ Connect
       try {
         const api = new ThinQConnect({
           token: pairData.token,
@@ -108,7 +127,6 @@ class LGWasherDriver extends Homey.Driver {
         return result;
       }
 
-      // Legacy ThinQ2
       try {
         const legacy = new ThinQ2Legacy({
           country: pairData.country,

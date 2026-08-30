@@ -5,13 +5,34 @@ function device(homey, id) {
   return homey.app.getWasherDevice(id);
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function getReadyWidgetState(d) {
+  // Prefer the device cache. During app startup the widget can open a fraction
+  // earlier than the initial ThinQ2 refresh has finished, which previously left
+  // the program and option lists empty. Give the device init a short moment to
+  // finish before falling back to one explicit refresh.
+  let state = d.getWidgetState();
+  if (Array.isArray(state?.programs) && state.programs.length) return state;
+
+  for (let i = 0; i < 6; i++) {
+    await sleep(250);
+    state = d.getWidgetState();
+    if (Array.isArray(state?.programs) && state.programs.length) return state;
+  }
+
+  // Only refresh when the cache is still empty after ~1.5 seconds. This keeps
+  // normal widget opens cache-only while still recovering from a startup race.
+  await d.refreshThinQ2().catch(() => {});
+  return d.getWidgetState();
+}
+
 module.exports = {
   async getState({ homey, query }) {
     const d = device(homey, query.deviceId);
-    // Use the device cache here. The device itself already refreshes ThinQ2 on
-    // init and every 30 seconds. Triggering another ThinQ2 refresh whenever the
-    // widget opens caused several duplicate LG requests during app startup.
-    return d.getWidgetState();
+    return getReadyWidgetState(d);
   },
 
   async getLiveStatus({ homey, query }) {

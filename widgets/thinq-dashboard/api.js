@@ -3,12 +3,20 @@
 const {
   recordFromLive,
   getProgramLearning,
-  parseDurationMinutes
+  parseDurationMinutes,
+  ensureInsightsCapabilities,
+  startInsightsRecorder
 } = require('../../lib/smart-wash-duration');
 
 function device(homey, id) {
   if (!id) throw new Error('Geen LG ThinQ-apparaat geselecteerd in de widget.');
   return homey.app.getWasherDevice(id);
+}
+
+async function prepareDevice(d) {
+  await ensureInsightsCapabilities(d);
+  startInsightsRecorder(d);
+  return d;
 }
 
 function isActive(status) {
@@ -64,6 +72,7 @@ async function overview(d) {
   const childLock = Object.prototype.hasOwnProperty.call(wd, 'childLock')
     ? triState(wd.childLock, 'CHILDLOCK_ON', 'CHILDLOCK_OFF')
     : null;
+  const actualCycleDuration = Number(d.getCapabilityValue('lg_actual_cycle_duration'));
 
   return {
     deviceType: 'washer',
@@ -73,6 +82,7 @@ async function overview(d) {
     remaining: merged.remaining || null,
     total: merged.total || null,
     progressPercent,
+    actualCycleDuration: Number.isFinite(actualCycleDuration) ? actualCycleDuration : null,
     currentProgramId,
     currentProgramName: merged.currentProgramName || merged.programName || programFromList?.name || null,
     remoteControl: merged.remoteControl === true,
@@ -91,19 +101,19 @@ async function overview(d) {
 
 module.exports = {
   async getOverview({ homey, query }) {
-    const d = device(homey, query.deviceId);
+    const d = await prepareDevice(device(homey, query.deviceId));
     return overview(d);
   },
 
   async refresh({ homey, body }) {
-    const d = device(homey, body.deviceId);
+    const d = await prepareDevice(device(homey, body.deviceId));
     await d.refreshNow().catch(() => {});
     await d.refreshThinQ2().catch(() => {});
     return overview(d);
   },
 
   async pause({ homey, body }) {
-    const d = device(homey, body.deviceId);
+    const d = await prepareDevice(device(homey, body.deviceId));
     const current = await overview(d);
     if (!current.active) throw new Error('De wasmachine is niet actief.');
     await d.pauseWasher();
@@ -111,13 +121,13 @@ module.exports = {
   },
 
   async powerOff({ homey, body }) {
-    const d = device(homey, body.deviceId);
+    const d = await prepareDevice(device(homey, body.deviceId));
     await d.powerOffWasher();
     return overview(d);
   },
 
   async wake({ homey, body }) {
-    const d = device(homey, body.deviceId);
+    const d = await prepareDevice(device(homey, body.deviceId));
     const current = await overview(d);
     if (current.active) throw new Error('Wakker maken is geblokkeerd terwijl de wasmachine actief is.');
     await d.wakeupWasher();

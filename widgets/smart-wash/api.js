@@ -41,10 +41,32 @@ function enrichLive(d, live) {
     remainingMinutes: Number.isFinite(remainingMinutes) ? remainingMinutes : null,
     progressPercent,
     learnedDuration,
+    recentDurations: learnedDuration?.samples?.slice(-5).reverse().map(sample => ({
+      minutes: Number(sample.minutes),
+      actualMinutes: Number.isFinite(Number(sample.actualMinutes)) ? Number(sample.actualMinutes) : null,
+      at: sample.at || null
+    })) || [],
     actualCycleDuration: Number.isFinite(actualCycleDuration) ? actualCycleDuration : null,
     planDurationMinutes: Number.isFinite(Number(plan?.durationMinutes)) ? Number(plan.durationMinutes) : null,
     plannedAveragePrice: Number.isFinite(Number(plan?.averagePrice)) ? Number(plan.averagePrice) : null
   };
+}
+
+function averagePriceForWindow(slots, startMs, endMs) {
+  const start = Number(startMs);
+  const end = Number(endMs);
+  if (!Array.isArray(slots) || !Number.isFinite(start) || !Number.isFinite(end) || end <= start) return null;
+  let weighted = 0;
+  let covered = 0;
+  for (const slot of slots) {
+    const segStart = Math.max(start, Number(slot.start));
+    const segEnd = Math.min(end, Number(slot.end));
+    if (!Number.isFinite(segStart) || !Number.isFinite(segEnd) || segEnd <= segStart) continue;
+    const ms = segEnd - segStart;
+    weighted += Number(slot.price) * ms;
+    covered += ms;
+  }
+  return covered >= (end - start) - 1000 ? weighted / covered : null;
 }
 
 async function getReadyWidgetState(d) {
@@ -92,7 +114,22 @@ module.exports = {
       deadlineMs: body.deadlineMs,
       durationMinutes: body.durationMinutes
     });
-    return { ...result, state:applyLearnedDurations(d, d.getWidgetState()) };
+    const durationMs = Number(result?.best?.durationMinutes || body.durationMinutes) * 60000;
+    const directStart = Math.max(Date.now(), Number(body.earliestMs) || Date.now());
+    const directAveragePrice = averagePriceForWindow(result.slots, directStart, directStart + durationMs);
+    const smartAveragePrice = Number(result?.best?.averagePrice);
+    const savingsPerKwh = Number.isFinite(directAveragePrice) && Number.isFinite(smartAveragePrice)
+      ? Math.max(0, directAveragePrice - smartAveragePrice)
+      : null;
+    return {
+      ...result,
+      directAveragePrice,
+      savingsPerKwh,
+      savingsPercent: Number.isFinite(savingsPerKwh) && directAveragePrice > 0
+        ? Math.round((savingsPerKwh / directAveragePrice) * 100)
+        : null,
+      state: applyLearnedDurations(d, d.getWidgetState())
+    };
   },
 
   async savePlan({ homey, body }) {

@@ -1,6 +1,6 @@
 {
   "id": "com.rexm.lgthinq",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "compatibility": ">=12.3.0",
   "sdk": 3,
   "runtime": "nodejs",

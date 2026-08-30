@@ -1,5 +1,6 @@
 'use strict';
 
+const { DateTime } = require('luxon');
 const {
   recordFromLive,
   applyLearnedDurations,
@@ -56,17 +57,145 @@ function averagePriceForWindow(slots, startMs, endMs) {
   const start = Number(startMs);
   const end = Number(endMs);
   if (!Array.isArray(slots) || !Number.isFinite(start) || !Number.isFinite(end) || end <= start) return null;
+
+  let cursor = start;
   let weighted = 0;
   let covered = 0;
+
   for (const slot of slots) {
-    const segStart = Math.max(start, Number(slot.start));
-    const segEnd = Math.min(end, Number(slot.end));
-    if (!Number.isFinite(segStart) || !Number.isFinite(segEnd) || segEnd <= segStart) continue;
-    const ms = segEnd - segStart;
-    weighted += Number(slot.price) * ms;
-    covered += ms;
+    const slotStart = Number(slot.start);
+    const slotEnd = Number(slot.end);
+    if (!Number.isFinite(slotStart) || !Number.isFinite(slotEnd)) continue;
+    if (slotEnd <= cursor) continue;
+    if (slotStart >= end) break;
+    if (slotStart > cursor + 1000) break;
+
+    const segStart = Math.max(cursor, slotStart);
+    const segEnd = Math.min(end, slotEnd);
+    if (segEnd > segStart) {
+      const ms = segEnd - segStart;
+      weighted += Number(slot.price) * ms;
+      covered += ms;
+      cursor = segEnd;
+    }
+    if (cursor >= end) break;
   }
+
   return covered >= (end - start) - 1000 ? weighted / covered : null;
+}
+
+async function getCompleteEnergyPriceWindow(app, fromMs, untilMs) {
+  const start = DateTime.fromMillis(Number(fromMs));
+  const end = DateTime.fromMillis(Number(untilMs));
+  const days = [];
+  let day = start.startOf('day');
+  const last = end.startOf('day');
+
+  while (day <= last && days.length < 4) {
+    days.push(day.toISODate());
+    day = day.plus({ days: 1 });
+  }
+
+  const merged = [];
+  for (const date of days) {
+    let prices;
+    try {
+      prices = await app.getHomeyEnergyPrices(date);
+    } catch (err) {
+      throw new Error(`Homey Energy-prijzen voor ${date} ontbreken: ${err?.message || err}`);
+    }
+    if (!Array.isArray(prices) || !prices.length) {
+      throw new Error(`Homey Energy heeft nog geen prijsdata voor ${date}. Probeer het later opnieuw.`);
+    }
+    merged.push(...prices);
+  }
+
+  const byStart = new Map();
+  for (const p of merged) {
+    if (Number.isFinite(Number(p?.start)) && Number.isFinite(Number(p?.end)) && Number.isFinite(Number(p?.price))) {
+      byStart.set(Number(p.start), p);
+    }
+  }
+
+  const slots = [...byStart.values()]
+    .filter(p => Number(p.end) > Number(fromMs) && Number(p.start) < Number(untilMs))
+    .sort((a, b) => Number(a.start) - Number(b.start));
+
+  if (!slots.length) throw new Error('Geen Homey Energy-prijzen beschikbaar in deze periode.');
+
+  // Refuse to optimize over an incomplete horizon. Previously a missing next-day
+  // response silently left only tonight's prices, which could select a much more
+  // expensive start even though cheaper prices existed tomorrow.
+  let cursor = Number(fromMs);
+  for (const slot of slots) {
+    const slotStart = Number(slot.start);
+    const slotEnd = Number(slot.end);
+    if (slotEnd <= cursor) continue;
+    if (slotStart > cursor + 1000) {
+      const missingFrom = DateTime.fromMillis(cursor).toFormat('dd-LL HH:mm');
+      const missingTo = DateTime.fromMillis(slotStart).toFormat('dd-LL HH:mm');
+      throw new Error(`Prijsdata is niet compleet tussen ${missingFrom} en ${missingTo}. Er wordt niet gepland met onvolledige prijzen.`);
+    }
+    cursor = Math.max(cursor, slotEnd);
+    if (cursor >= Number(untilMs) - 1000) break;
+  }
+
+  if (cursor < Number(untilMs) - 1000) {
+    const availableUntil = DateTime.fromMillis(cursor).toFormat('dd-LL HH:mm');
+    const wantedUntil = DateTime.fromMillis(Number(untilMs)).toFormat('dd-LL HH:mm');
+    throw new Error(`Homey Energy-prijzen zijn beschikbaar tot ${availableUntil}, maar de deadline is ${wantedUntil}. Wacht tot alle prijzen beschikbaar zijn.`);
+  }
+
+  return slots;
+}
+
+async function calculateCompleteCheapestWindow(app, { earliestMs, deadlineMs, durationMinutes }) {
+  const now = Date.now();
+  const earliest = Math.max(Number(earliestMs) || now, now);
+  const deadline = Number(deadlineMs);
+  const duration = Math.max(15, Number(durationMinutes) || 120);
+  const durationMs = duration * 60000;
+
+  if (!Number.isFinite(deadline) || deadline <= earliest + durationMs) {
+    throw new Error('De eindtijd ligt te vroeg voor de gekozen programmaduur.');
+  }
+
+  const slots = await getCompleteEnergyPriceWindow(app, earliest, deadline);
+  const starts = [earliest, ...slots.map(s => Number(s.start)).filter(t => t > earliest)];
+  const candidates = [];
+  const seen = new Set();
+
+  for (const start of starts) {
+    if (seen.has(start)) continue;
+    seen.add(start);
+    const finish = start + durationMs;
+    if (finish > deadline) continue;
+    const averagePrice = averagePriceForWindow(slots, start, finish);
+    if (!Number.isFinite(averagePrice)) continue;
+    candidates.push({
+      start,
+      end: finish,
+      averagePrice,
+      durationMinutes: Math.round(duration)
+    });
+  }
+
+  if (!candidates.length) {
+    throw new Error('Geen aaneengesloten prijsperiode gevonden die lang genoeg is.');
+  }
+
+  candidates.sort((a, b) => a.averagePrice - b.averagePrice || a.start - b.start);
+  return {
+    best: candidates[0],
+    alternatives: candidates.slice(1, 5),
+    slots: slots.map(s => ({
+      start: Number(s.start),
+      end: Number(s.end),
+      price: Number(s.price),
+      marketPrice: Number.isFinite(Number(s.marketPrice)) ? Number(s.marketPrice) : null,
+      priceField: s.priceField
+    }))
+  };
 }
 
 async function getReadyWidgetState(d) {
@@ -109,7 +238,7 @@ module.exports = {
 
   async previewPlan({ homey, body }) {
     const d = await prepareDevice(device(homey, body.deviceId));
-    const result = await homey.app.calculateCheapestWashWindow({
+    const result = await calculateCompleteCheapestWindow(homey.app, {
       earliestMs: body.earliestMs,
       deadlineMs: body.deadlineMs,
       durationMinutes: body.durationMinutes
@@ -121,6 +250,7 @@ module.exports = {
     const savingsPerKwh = Number.isFinite(directAveragePrice) && Number.isFinite(smartAveragePrice)
       ? Math.max(0, directAveragePrice - smartAveragePrice)
       : null;
+
     return {
       ...result,
       directAveragePrice,
@@ -134,7 +264,10 @@ module.exports = {
 
   async savePlan({ homey, body }) {
     const d = await prepareDevice(device(homey, body.deviceId));
-    return d.setSmartWashPlan(body.plan);
+    // Temporary safety lock for 0.7.8 testing: the device-level legacy replanner
+    // still uses the older partial-horizon routine. Keep the verified widget
+    // result fixed so it cannot be replaced by an incomplete overnight window.
+    return d.setSmartWashPlan({ ...body.plan, autoReplan: false });
   },
 
   async cancelPlan({ homey, query }) {

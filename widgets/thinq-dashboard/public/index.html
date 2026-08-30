@@ -1,185 +1,22 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;width:100%;overflow-x:hidden}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    .wrap{display:grid;gap:10px;width:100%}
-    .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .title{font-size:18px;font-weight:750}
-    .sub{font-size:11px;opacity:.65;margin-top:2px}
-    .pill{font-size:12px;padding:5px 9px;border-radius:999px;background:rgba(127,127,127,.14);white-space:nowrap}
-    .card{border:1px solid rgba(127,127,127,.2);border-radius:14px;padding:11px}
-    .main{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
-    .status{font-size:20px;font-weight:750;line-height:1.2}
-    .remaining{font-size:13px;opacity:.72;margin-top:3px}
-    .time{font-size:28px;font-weight:750;letter-spacing:-1px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .metric{border:1px solid rgba(127,127,127,.16);border-radius:11px;padding:9px;min-width:0}
-    .k{font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.06em}
-    .v{font-size:13px;font-weight:650;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .plan{font-size:12px;line-height:1.45}
-    .buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-    button{border:0;border-radius:10px;padding:9px 6px;font-weight:650;cursor:pointer;background:rgba(127,127,127,.15);color:inherit}
-    button.danger{background:rgba(190,30,45,.14)}
-    button:disabled{opacity:.38;cursor:not-allowed;filter:grayscale(1)}
-    .msg{font-size:11px;min-height:15px;opacity:.75}
-    .error{color:#c62828}
-    .hidden{display:none!important}
+    *{box-sizing:border-box}html,body{margin:0;padding:0;width:100%;overflow-x:hidden}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{display:grid;gap:10px;width:100%}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.title{font-size:18px;font-weight:750}.sub{font-size:11px;opacity:.65;margin-top:2px}.pill{font-size:12px;padding:5px 9px;border-radius:999px;background:rgba(127,127,127,.14);white-space:nowrap}.card{border:1px solid rgba(127,127,127,.2);border-radius:14px;padding:11px}.main{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.status{font-size:20px;font-weight:750;line-height:1.2}.remaining{font-size:13px;opacity:.72;margin-top:3px}.time{font-size:28px;font-weight:750;letter-spacing:-1px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric{border:1px solid rgba(127,127,127,.16);border-radius:11px;padding:9px;min-width:0}.k{font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.06em}.v{font-size:13px;font-weight:650;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.energyTitle{font-size:12px;font-weight:750;margin-bottom:9px}.energyGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.energyItem{min-width:0}.energyValue{font-size:14px;font-weight:700;margin-top:2px}.energySub{font-size:10px;opacity:.6;margin-top:2px}.planStatus{font-size:11px;margin-top:9px;padding-top:8px;border-top:1px solid rgba(127,127,127,.15);line-height:1.4}.buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}button{border:0;border-radius:10px;padding:9px 6px;font-weight:650;cursor:pointer;background:rgba(127,127,127,.15);color:inherit}button.danger{background:rgba(190,30,45,.14)}button:disabled{opacity:.38;cursor:not-allowed;filter:grayscale(1)}.msg{font-size:11px;min-height:15px;opacity:.75}.error{color:#c62828}.hidden{display:none!important}
   </style>
 </head>
-<body class="homey-widget">
-<div class="wrap">
-  <div class="top">
-    <div>
-      <div class="title" id="deviceName">LG ThinQ</div>
-      <div class="sub">ThinQ Overzicht</div>
-    </div>
-    <div class="pill" id="remote">Remote —</div>
-  </div>
-
-  <div class="card main">
-    <div>
-      <div class="status" id="status">Laden…</div>
-      <div class="remaining" id="program">Status ophalen</div>
-    </div>
-    <div class="time" id="remaining">—</div>
-  </div>
-
-  <div class="grid">
-    <div class="metric"><div class="k">Temperatuur</div><div class="v" id="temp">—</div></div>
-    <div class="metric"><div class="k">Centrifugeren</div><div class="v" id="spin">—</div></div>
-    <div class="metric"><div class="k">Deur</div><div class="v" id="door">—</div></div>
-    <div class="metric"><div class="k">Kinderslot</div><div class="v" id="child">—</div></div>
-  </div>
-
-  <div id="plan" class="card plan hidden"></div>
-
-  <div class="buttons">
-    <button id="refresh">Ververs</button>
-    <button id="wake">Wakker</button>
-    <button id="pause">Pauze</button>
-    <button id="off" class="danger">Uit</button>
-  </div>
-  <div id="msg" class="msg"></div>
+<body class="homey-widget"><div class="wrap">
+  <div class="top"><div><div class="title" id="deviceName">LG ThinQ</div><div class="sub">ThinQ Overzicht</div></div><div class="pill" id="remote">Remote —</div></div>
+  <div class="card main"><div><div class="status" id="status">Laden…</div><div class="remaining" id="program">Status ophalen</div></div><div class="time" id="remaining">—</div></div>
+  <div class="grid"><div class="metric"><div class="k">Temperatuur</div><div class="v" id="temp">—</div></div><div class="metric"><div class="k">Centrifugeren</div><div class="v" id="spin">—</div></div><div class="metric"><div class="k">Deur</div><div class="v" id="door">—</div></div><div class="metric"><div class="k">Kinderslot</div><div class="v" id="child">—</div></div></div>
+  <div id="energy" class="card hidden"><div class="energyTitle">Energy & planning</div><div class="energyGrid"><div class="energyItem"><div class="k">Geleerde duur</div><div class="energyValue" id="learned">—</div><div class="energySub" id="learnedSub"></div></div><div class="energyItem"><div class="k">Gem. prijs</div><div class="energyValue" id="price">—</div><div class="energySub">incl. Homey gebruikerskosten</div></div><div class="energyItem"><div class="k">Geplande start</div><div class="energyValue" id="startAt">—</div></div><div class="energyItem"><div class="k">Verwacht klaar</div><div class="energyValue" id="endAt">—</div></div></div><div id="planStatus" class="planStatus"></div></div>
+  <div class="buttons"><button id="refresh">Ververs</button><button id="wake">Wakker</button><button id="pause">Pauze</button><button id="off" class="danger">Uit</button></div><div id="msg" class="msg"></div>
 </div>
-
 <script>
-function onHomeyReady(Homey) {
-  const $ = id => document.getElementById(id);
-  let deviceId = null;
-  let timer = null;
-  let ready = false;
-  let lastHeight = 0;
-
-  const labels = {
-    TEMP_COLD:'Koud',TEMP_20:'20 °C',TEMP_30:'30 °C',TEMP_40:'40 °C',TEMP_50:'50 °C',TEMP_60:'60 °C',TEMP_95:'95 °C',
-    SPIN_400:'400 rpm',SPIN_600:'600 rpm',SPIN_800:'800 rpm',SPIN_1000:'1000 rpm',SPIN_1200:'1200 rpm',SPIN_Max:'Maximum',SPIN_1400:'Maximum',
-    TURBO59:'Turbo Wash 59',COTTON:'Katoen',EASYCARE:'Kreukherstellend',MIXEDFABRIC:'Gemengde was',SPEED14:'Snel 14',
-    TUB_CLEAN:'Trommelreiniging',WOOL:'Wol',DELICATE:'Fijne was',ALLERGYSPASTEAM:'Allergie / Stoom',DRYONLY:'Alleen drogen',WASHDRY:'Wassen + drogen',SPINONLY:'Alleen centrifugeren',
-    NOT_SELECTED:'—',NO_TEMP:'—',NO_SPIN:'Geen'
-  };
-  const label = v => labels[v] || (v ? String(v).replaceAll('_',' ') : '—');
-
-  function setMsg(text,error=false){ $('msg').textContent=text||''; $('msg').classList.toggle('error',!!error); }
-
-  function syncHeight(initial=false){
-    const h=Math.max(260,Math.ceil(document.querySelector('.wrap').getBoundingClientRect().height+2));
-    if(!initial && Math.abs(h-lastHeight)<2) return;
-    lastHeight=h;
-    try{
-      if(!ready){ready=true;Homey.ready({height:h});}
-      else if(Homey.setHeight) Homey.setHeight(h);
-    }catch(e){}
-  }
-
-  function money(v){
-    if(!Number.isFinite(Number(v))) return null;
-    return '€ '+Number(v).toFixed(4).replace('.',',')+'/kWh';
-  }
-
-  function formatPlan(plan){
-    if(!plan || !['scheduled','starting','started'].includes(plan.status)) return null;
-    const fmt=ms=>new Intl.DateTimeFormat('nl-NL',{weekday:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(ms));
-    const price=money(plan.averagePrice);
-    if(plan.status==='scheduled') return '<strong>Gepland</strong> · start '+fmt(plan.startAt)+(price?' · '+price:'');
-    if(plan.status==='starting') return '<strong>Planning wordt gestart…</strong>'+(price?' · '+price:'');
-    return '<strong>Automatisch gestart</strong>'+(price?' · '+price:'');
-  }
-
-  function lockText(value, locked, unlocked){
-    if(value===true) return locked;
-    if(value===false) return unlocked;
-    return 'Niet beschikbaar';
-  }
-
-  function render(data){
-    $('deviceName').textContent=data.name||'LG ThinQ';
-    $('status').textContent=data.error && data.error!=='ERROR_NO' ? '⚠ '+data.error : (data.status||'Onbekend');
-    $('status').classList.toggle('error',!!(data.error && data.error!=='ERROR_NO'));
-    $('program').textContent=data.currentProgramName||label(data.currentProgramId)||'Geen programma';
-    $('remaining').textContent=data.active && data.remaining && data.remaining!=='0:00' ? data.remaining : '—';
-    $('remote').textContent=data.remoteControl?'Remote ✓':'Remote ✕';
-    $('temp').textContent=label(data.liveOptions?.temp);
-    $('spin').textContent=label(data.liveOptions?.spin);
-    $('door').textContent=lockText(data.doorLocked,'Vergrendeld','Ontgrendeld');
-    $('door').title=data.doorLockRaw ? 'LG ThinQ2: '+data.doorLockRaw : 'LG levert momenteel geen deurstatus voor dit apparaat.';
-    $('child').textContent=lockText(data.childLock,'Aan','Uit');
-
-    $('pause').disabled=!data.active;
-    $('wake').disabled=data.active;
-    $('off').disabled=String(data.status||'').toLowerCase()==='uit';
-
-    const p=formatPlan(data.plan);
-    $('plan').classList.toggle('hidden',!p);
-    $('plan').innerHTML=p||'';
-    syncHeight(false);
-  }
-
-  async function load(full=false){
-    if(!deviceId) return;
-    try{
-      if(full) setMsg('LG ThinQ verversen…');
-      const path=full?'/refresh':'/overview?deviceId='+encodeURIComponent(deviceId);
-      const data=full
-        ? await Homey.api('POST',path,{deviceId})
-        : await Homey.api('GET',path,{});
-      render(data);
-      setMsg('');
-    }catch(e){ setMsg(e.message||String(e),true); }
-  }
-
-  async function action(path,confirmText){
-    if(confirmText && !confirm(confirmText)) return;
-    try{
-      setMsg('Opdracht uitvoeren…');
-      const data=await Homey.api('POST',path,{deviceId});
-      render(data);
-      setMsg('Opdracht uitgevoerd.');
-      setTimeout(()=>load(false),1800);
-    }catch(e){ setMsg(e.message||String(e),true); }
-  }
-
-  $('refresh').addEventListener('click',()=>load(true));
-  $('wake').addEventListener('click',()=>action('/wake'));
-  $('pause').addEventListener('click',()=>action('/pause'));
-  $('off').addEventListener('click',()=>action('/power-off','Wasmachine uitschakelen?'));
-
-  async function init(){
-    const ids=Homey.getDeviceIds();
-    deviceId=ids&&ids[0];
-    if(!deviceId){setMsg('Kies een LG ThinQ-apparaat in de widgetinstellingen.',true);syncHeight(true);return;}
-    await load(false);
-    syncHeight(true);
-    timer=setInterval(()=>load(false),5000);
-  }
-
-  window.addEventListener('beforeunload',()=>{if(timer)clearInterval(timer);});
-  init();
-}
-</script>
-</body>
-</html>
+function onHomeyReady(Homey){const $=id=>document.getElementById(id);let deviceId=null,timer=null,ready=false,lastHeight=0;const labels={TEMP_COLD:'Koud',TEMP_20:'20 °C',TEMP_30:'30 °C',TEMP_40:'40 °C',TEMP_50:'50 °C',TEMP_60:'60 °C',TEMP_95:'95 °C',SPIN_400:'400 rpm',SPIN_600:'600 rpm',SPIN_800:'800 rpm',SPIN_1000:'1000 rpm',SPIN_1200:'1200 rpm',SPIN_Max:'Maximum',SPIN_1400:'Maximum',TURBO59:'Turbo Wash 59',COTTON:'Katoen',EASYCARE:'Kreukherstellend',MIXEDFABRIC:'Gemengde was',SPEED14:'Snel 14',TUB_CLEAN:'Trommelreiniging',WOOL:'Wol',DELICATE:'Fijne was',ALLERGYSPASTEAM:'Allergie / Stoom',DRYONLY:'Alleen drogen',WASHDRY:'Wassen + drogen',SPINONLY:'Alleen centrifugeren',NOT_SELECTED:'—',NO_TEMP:'—',NO_SPIN:'Geen'};const label=v=>labels[v]||(v?String(v).replaceAll('_',' '):'—');
+function setMsg(t,e=false){$('msg').textContent=t||'';$('msg').classList.toggle('error',!!e)}function syncHeight(initial=false){const h=Math.max(260,Math.ceil(document.querySelector('.wrap').getBoundingClientRect().height+2));if(!initial&&Math.abs(h-lastHeight)<2)return;lastHeight=h;try{if(!ready){ready=true;Homey.ready({height:h})}else if(Homey.setHeight)Homey.setHeight(h)}catch(e){}}function money(v){return Number.isFinite(Number(v))?'€ '+Number(v).toFixed(4).replace('.',',')+'/kWh':'—'}function dur(m){m=Math.round(Number(m));if(!Number.isFinite(m)||m<=0)return'—';return(Math.floor(m/60)?Math.floor(m/60)+'u ':'')+(m%60)+'m'}function dt(ms){if(!Number.isFinite(Number(ms)))return'—';return new Intl.DateTimeFormat('nl-NL',{weekday:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(Number(ms)))}function lockText(v,a,b){return v===true?a:v===false?b:'Niet beschikbaar'}
+function render(d){$('deviceName').textContent=d.name||'LG ThinQ';$('status').textContent=d.error&&d.error!=='ERROR_NO'?'⚠ '+d.error:(d.status||'Onbekend');$('status').classList.toggle('error',!!(d.error&&d.error!=='ERROR_NO'));$('program').textContent=d.currentProgramName||label(d.currentProgramId)||'Geen programma';$('remaining').textContent=d.active&&d.remaining&&d.remaining!=='0:00'?d.remaining:'—';$('remote').textContent=d.remoteControl?'Remote ✓':'Remote ✕';$('temp').textContent=label(d.liveOptions?.temp);$('spin').textContent=label(d.liveOptions?.spin);$('door').textContent=lockText(d.doorLocked,'Vergrendeld','Ontgrendeld');$('door').title=d.doorLockRaw?'LG ThinQ2: '+d.doorLockRaw:'LG levert momenteel geen deurstatus voor dit apparaat.';$('child').textContent=lockText(d.childLock,'Aan','Uit');$('pause').disabled=!d.active;$('wake').disabled=d.active;$('off').disabled=String(d.status||'').toLowerCase()==='uit';
+const l=d.learnedDuration,p=d.plan;const show=!!(l||p);$('energy').classList.toggle('hidden',!show);$('learned').textContent=l?dur(l.averageMinutes):'Nog niet geleerd';$('learnedSub').textContent=l?(l.count+' meting'+(l.count===1?'':'en')+' · laatste '+dur(l.lastMinutes)):'';$('price').textContent=p?money(p.averagePrice):'—';$('startAt').textContent=p?.startAt?dt(p.startAt):'—';$('endAt').textContent=d.expectedEndAt?dt(d.expectedEndAt):'—';let ps='';if(p?.status==='scheduled')ps='<strong>Gepland</strong> · Homey start automatisch op het goedkoopste moment.';else if(p?.status==='starting')ps='<strong>Starten…</strong> · geplande wasbeurt wordt nu gestart.';else if(p?.status==='started')ps='<strong>Automatisch gestart</strong> · planning uitgevoerd.';else if(l)ps='De geleerde duur wordt bij de volgende prijsberekening gebruikt.';$('planStatus').innerHTML=ps;syncHeight(false)}
+async function load(full=false){if(!deviceId)return;try{if(full)setMsg('LG ThinQ verversen…');const path=full?'/refresh':'/overview?deviceId='+encodeURIComponent(deviceId);const d=full?await Homey.api('POST',path,{deviceId}):await Homey.api('GET',path,{});render(d);setMsg('')}catch(e){setMsg(e.message||String(e),true)}}async function action(path,c){if(c&&!confirm(c))return;try{setMsg('Opdracht uitvoeren…');const d=await Homey.api('POST',path,{deviceId});render(d);setMsg('Opdracht uitgevoerd.');setTimeout(()=>load(false),1800)}catch(e){setMsg(e.message||String(e),true)}}$('refresh').addEventListener('click',()=>load(true));$('wake').addEventListener('click',()=>action('/wake'));$('pause').addEventListener('click',()=>action('/pause'));$('off').addEventListener('click',()=>action('/power-off','Wasmachine uitschakelen?'));async function init(){const ids=Homey.getDeviceIds();deviceId=ids&&ids[0];if(!deviceId){setMsg('Kies een LG ThinQ-apparaat in de widgetinstellingen.',true);syncHeight(true);return}await load(false);syncHeight(true);timer=setInterval(()=>load(false),5000)}window.addEventListener('beforeunload',()=>{if(timer)clearInterval(timer)});init()}
+</script></body></html>

@@ -1,6 +1,10 @@
 'use strict';
 
-const { recordFromLive, getProgramLearning } = require('../../lib/smart-wash-duration');
+const {
+  recordFromLive,
+  getProgramLearning,
+  parseDurationMinutes
+} = require('../../lib/smart-wash-duration');
 
 function device(homey, id) {
   if (!id) throw new Error('Geen LG ThinQ-apparaat geselecteerd in de widget.');
@@ -41,6 +45,19 @@ async function overview(d) {
     ? Number(plan.startAt) + planDurationMinutes * 60 * 1000
     : null;
 
+  const liveTotalMinutes = parseDurationMinutes(merged.total);
+  const liveRemainingMinutes = parseDurationMinutes(merged.remaining);
+  let progressPercent = null;
+  if (
+    isActive(merged.status) &&
+    Number.isFinite(liveTotalMinutes) && liveTotalMinutes > 0 &&
+    Number.isFinite(liveRemainingMinutes) && liveRemainingMinutes >= 0
+  ) {
+    progressPercent = Math.max(0, Math.min(100,
+      Math.round(((liveTotalMinutes - liveRemainingMinutes) / liveTotalMinutes) * 100)
+    ));
+  }
+
   const doorLocked = Object.prototype.hasOwnProperty.call(wd, 'doorLock')
     ? triState(wd.doorLock, 'DOOR_LOCK_ON', 'DOOR_LOCK_OFF')
     : null;
@@ -54,6 +71,8 @@ async function overview(d) {
     status: merged.status || 'Onbekend',
     active: isActive(merged.status),
     remaining: merged.remaining || null,
+    total: merged.total || null,
+    progressPercent,
     currentProgramId,
     currentProgramName: merged.currentProgramName || merged.programName || programFromList?.name || null,
     remoteControl: merged.remoteControl === true,

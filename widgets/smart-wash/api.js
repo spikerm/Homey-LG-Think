@@ -25,6 +25,7 @@ function enrichLive(d, live) {
   const programId = live?.currentProgramId || d._lastProgram || d.getStoreValue('selected_program_id') || null;
   const learnedDuration = getProgramLearning(d, programId);
   const plan = d.getStoreValue('smart_wash_plan') || null;
+  const actualCycleDuration = Number(d.getCapabilityValue('lg_actual_cycle_duration'));
 
   return {
     ...live,
@@ -32,16 +33,13 @@ function enrichLive(d, live) {
     remainingMinutes: Number.isFinite(remainingMinutes) ? remainingMinutes : null,
     progressPercent,
     learnedDuration,
+    actualCycleDuration: Number.isFinite(actualCycleDuration) ? actualCycleDuration : null,
     planDurationMinutes: Number.isFinite(Number(plan?.durationMinutes)) ? Number(plan.durationMinutes) : null,
     plannedAveragePrice: Number.isFinite(Number(plan?.averagePrice)) ? Number(plan.averagePrice) : null
   };
 }
 
 async function getReadyWidgetState(d) {
-  // Prefer the device cache. During app startup the widget can open a fraction
-  // earlier than the initial ThinQ2 refresh has finished, which previously left
-  // the program and option lists empty. Give the device init a short moment to
-  // finish before falling back to one explicit refresh.
   let state = d.getWidgetState();
   if (Array.isArray(state?.programs) && state.programs.length) {
     const live = d.getWidgetLiveStatus();
@@ -59,8 +57,6 @@ async function getReadyWidgetState(d) {
     }
   }
 
-  // Only refresh when the cache is still empty after ~1.5 seconds. This keeps
-  // normal widget opens cache-only while still recovering from a startup race.
   await d.refreshThinQ2().catch(() => {});
   state = d.getWidgetState();
   const live = d.getWidgetLiveStatus();

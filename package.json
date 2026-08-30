@@ -1,6 +1,6 @@
 {
   "name": "com.rexm.lgthinq",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "LG ThinQ appliance integration for Homey with smart Energy-aware control",
   "main": "app.js",
   "scripts": {

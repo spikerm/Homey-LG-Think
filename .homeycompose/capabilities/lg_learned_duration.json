@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Learned wash duration", "nl": "Geleerde wasduur" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": { "en": "min", "nl": "min" },
+  "min": 0,
+  "max": 600,
+  "decimals": 0,
+  "insights": true,
+  "icon": "/assets/capabilities/time.svg"
+}

@@ -1,5 +1,6 @@
 'use strict';
 
+const http = require('http');
 const { DateTime } = require('luxon');
 const {
   recordFromLive,
@@ -10,6 +11,7 @@ const {
   startInsightsRecorder
 } = require('../../lib/smart-wash-duration');
 
+const SLIMLADEN_PRICES_URL = 'http://10.10.1.102:8778/api/prices';
 const TURBO59_DRY_OPTIONS = ['NOT_SELECTED', 'DRYLEVEL_NORMAL'];
 const FULL_DRY_OPTIONS = [
   'NOT_SELECTED',
@@ -142,6 +144,87 @@ function averagePriceForWindow(slots, startMs, endMs) {
   return covered >= (end - start) - 1000 ? weighted / covered : null;
 }
 
+function httpGetJson(url, timeoutMs = 5000) {
+  return new Promise((resolve, reject) => {
+    const req = http.get(url, { timeout: timeoutMs }, res => {
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', chunk => { body += chunk; });
+      res.on('end', () => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject(new Error(`HTTP ${res.statusCode}: ${body.slice(0, 300)}`));
+          return;
+        }
+        try {
+          resolve(JSON.parse(body));
+        } catch (err) {
+          reject(new Error(`ongeldige JSON: ${err.message}`));
+        }
+      });
+    });
+    req.on('timeout', () => req.destroy(new Error(`timeout na ${timeoutMs} ms`)));
+    req.on('error', reject);
+  });
+}
+
+async function getSlimLadenPricesForDate(app, date) {
+  const zone = 'Europe/Amsterdam';
+  const now = DateTime.now().setZone(zone);
+  const today = now.toISODate();
+  const tomorrow = now.plus({ days: 1 }).toISODate();
+  let dayLabel;
+
+  if (date === today) dayLabel = 'today';
+  else if (date === tomorrow) dayLabel = 'tomorrow';
+  else throw new Error(`SlimLaden fallback ondersteunt alleen vandaag en morgen; gevraagd=${date}.`);
+
+  app.log(`SlimLaden fallback: ${SLIMLADEN_PRICES_URL} ophalen voor ${date} (${dayLabel}).`);
+  const raw = await httpGetJson(SLIMLADEN_PRICES_URL);
+  if (!Array.isArray(raw)) throw new Error('SlimLaden /api/prices gaf geen array terug.');
+
+  const rows = raw.filter(row => row?.day === dayLabel);
+  const slots = rows.map(row => {
+    const price = Number(row?.price);
+    const time = String(row?.time || '');
+    const match = time.match(/^(\d{2}):(\d{2})$/);
+    if (!match || !Number.isFinite(price)) return null;
+
+    const start = DateTime.fromISO(`${date}T${time}:00`, { zone });
+    if (!start.isValid) return null;
+    const end = start.plus({ minutes: 15 });
+    return {
+      start: start.toMillis(),
+      end: end.toMillis(),
+      price,
+      marketPrice: null,
+      priceField: 'slimladenFallback'
+    };
+  }).filter(Boolean).sort((a, b) => a.start - b.start);
+
+  if (!slots.length) throw new Error(`SlimLaden heeft geen prijsdata voor ${date}.`);
+  app.log(`SlimLaden fallback ${date}: ${slots.length} prijspunten ontvangen (15 min, EUR/kWh, all-in).`);
+  return slots;
+}
+
+async function getPriceDayWithFallback(app, date) {
+  try {
+    app.log(`Homey Energy planning: prijsdata ${date} ophalen.`);
+    const prices = await app.getHomeyEnergyPrices(date);
+    if (Array.isArray(prices) && prices.length) return prices;
+    throw new Error('lege prijsrespons');
+  } catch (homeyErr) {
+    app.log(`Homey Energy ${date} niet beschikbaar (${homeyErr?.message || homeyErr}); SlimLaden fallback proberen.`);
+    try {
+      return await getSlimLadenPricesForDate(app, date);
+    } catch (fallbackErr) {
+      throw new Error(
+        `prijsdata voor ${date} ontbreekt. Homey Energy: ${homeyErr?.message || homeyErr}; ` +
+        `SlimLaden fallback: ${fallbackErr?.message || fallbackErr}`
+      );
+    }
+  }
+}
+
 async function getCompleteEnergyPriceWindow(app, fromMs, untilMs) {
   const from = Number(fromMs);
   const until = Number(untilMs);
@@ -149,8 +232,6 @@ async function getCompleteEnergyPriceWindow(app, fromMs, untilMs) {
     throw new Error('Ongeldige periode voor Homey Energy-prijzen.');
   }
 
-  // Work explicitly in the Homey's local Dutch tariff calendar. Avoid relying
-  // on DateTime object relational comparison for a multi-day window.
   const zone = 'Europe/Amsterdam';
   const firstDay = DateTime.fromMillis(from, { zone }).startOf('day');
   const lastDay = DateTime.fromMillis(until, { zone }).startOf('day');
@@ -173,15 +254,9 @@ async function getCompleteEnergyPriceWindow(app, fromMs, untilMs) {
   for (const date of days) {
     let prices;
     try {
-      app.log(`Homey Energy planning: prijsdata ${date} ophalen.`);
-      prices = await app.getHomeyEnergyPrices(date);
+      prices = await getPriceDayWithFallback(app, date);
     } catch (err) {
-      const message = `Homey Energy-prijzen voor ${date} ontbreken: ${err?.message || err}`;
-      app.error(`Slim Wassen planning: ${message}`);
-      throw new Error(message);
-    }
-    if (!Array.isArray(prices) || !prices.length) {
-      const message = `Homey Energy heeft nog geen prijsdata voor ${date}. Probeer het later opnieuw.`;
+      const message = `Energieprijzen voor ${date} ontbreken: ${err?.message || err}`;
       app.error(`Slim Wassen planning: ${message}`);
       throw new Error(message);
     }
@@ -199,7 +274,7 @@ async function getCompleteEnergyPriceWindow(app, fromMs, untilMs) {
     .filter(p => Number(p.end) > from && Number(p.start) < until)
     .sort((a, b) => Number(a.start) - Number(b.start));
 
-  if (!slots.length) throw new Error('Geen Homey Energy-prijzen beschikbaar in deze periode.');
+  if (!slots.length) throw new Error('Geen energieprijzen beschikbaar in deze periode.');
 
   let cursor = from;
   for (const slot of slots) {
@@ -218,10 +293,15 @@ async function getCompleteEnergyPriceWindow(app, fromMs, untilMs) {
   if (cursor < until - 1000) {
     const availableUntil = DateTime.fromMillis(cursor, { zone }).toFormat('dd-LL HH:mm');
     const wantedUntil = DateTime.fromMillis(until, { zone }).toFormat('dd-LL HH:mm');
-    throw new Error(`Homey Energy-prijzen zijn beschikbaar tot ${availableUntil}, maar de deadline is ${wantedUntil}. Wacht tot alle prijzen beschikbaar zijn.`);
+    throw new Error(`Energieprijzen zijn beschikbaar tot ${availableUntil}, maar de deadline is ${wantedUntil}. Wacht tot alle prijzen beschikbaar zijn.`);
   }
 
-  app.log(`Homey Energy planning: ${slots.length} bruikbare prijspunten over ${days.length} dag(en).`);
+  const homeyCount = slots.filter(s => s.priceField !== 'slimladenFallback').length;
+  const fallbackCount = slots.filter(s => s.priceField === 'slimladenFallback').length;
+  app.log(
+    `Slim Wassen prijsvenster: ${slots.length} bruikbare prijspunten ` +
+    `(Homey Energy=${homeyCount}, SlimLaden fallback=${fallbackCount}).`
+  );
   return slots;
 }
 

@@ -1,0 +1,39 @@
+{
+  "title": {
+    "en": "Smart wash start failed",
+    "nl": "Slim wassen start mislukt"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "program",
+      "type": "string",
+      "title": {
+        "en": "Program",
+        "nl": "Programma"
+      }
+    },
+    {
+      "name": "error",
+      "type": "string",
+      "title": {
+        "en": "Error",
+        "nl": "Foutmelding"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message",
+        "nl": "Bericht"
+      }
+    }
+  ]
+}

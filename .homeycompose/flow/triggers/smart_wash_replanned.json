@@ -1,0 +1,79 @@
+{
+  "title": {
+    "en": "Smart wash replanned",
+    "nl": "Slim wassen automatisch verplaatst"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "program",
+      "type": "string",
+      "title": {
+        "en": "Program",
+        "nl": "Programma"
+      }
+    },
+    {
+      "name": "old_start_time",
+      "type": "string",
+      "title": {
+        "en": "Old start time",
+        "nl": "Oude starttijd"
+      }
+    },
+    {
+      "name": "new_start_time",
+      "type": "string",
+      "title": {
+        "en": "New start time",
+        "nl": "Nieuwe starttijd"
+      }
+    },
+    {
+      "name": "end_time",
+      "type": "string",
+      "title": {
+        "en": "End time",
+        "nl": "Eindtijd"
+      }
+    },
+    {
+      "name": "average_price",
+      "type": "number",
+      "title": {
+        "en": "Average price",
+        "nl": "Gemiddelde prijs"
+      }
+    },
+    {
+      "name": "saving",
+      "type": "number",
+      "title": {
+        "en": "Price saving",
+        "nl": "Prijsbesparing"
+      }
+    },
+    {
+      "name": "revision",
+      "type": "number",
+      "title": {
+        "en": "Revision",
+        "nl": "Aantal aanpassingen"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message",
+        "nl": "Bericht"
+      }
+    }
+  ]
+}

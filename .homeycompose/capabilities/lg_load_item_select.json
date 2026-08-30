@@ -1,0 +1,42 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Add item",
+    "nl": "Was toevoegen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "insights": false,
+  "icon": "/assets/capabilities/program.svg",
+  "values": [
+    {
+      "id": "LOADITEM_OFF",
+      "title": {
+        "en": "Off",
+        "nl": "Uit"
+      }
+    },
+    {
+      "id": "LOADITEM_1",
+      "title": {
+        "en": "Level 1",
+        "nl": "Niveau 1"
+      }
+    },
+    {
+      "id": "LOADITEM_2",
+      "title": {
+        "en": "Level 2",
+        "nl": "Niveau 2"
+      }
+    },
+    {
+      "id": "LOADITEM_3",
+      "title": {
+        "en": "Level 3",
+        "nl": "Niveau 3"
+      }
+    }
+  ]
+}

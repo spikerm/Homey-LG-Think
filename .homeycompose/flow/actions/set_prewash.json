@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set prewash",
+    "nl": "Stel voorwas in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "enabled",
+      "type": "checkbox",
+      "title": {
+        "en": "Prewash on",
+        "nl": "Voorwas aan"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set prewash to [[enabled]]",
+    "nl": "Stel voorwas in op [[enabled]]"
+  }
+}

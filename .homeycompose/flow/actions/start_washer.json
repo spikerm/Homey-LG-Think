@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Start washer",
+    "nl": "Start wasmachine"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

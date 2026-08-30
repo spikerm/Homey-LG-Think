@@ -1,0 +1,49 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Rinse setting",
+    "nl": "Spoelen instellen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "insights": false,
+  "icon": "/assets/capabilities/rinse.svg",
+  "values": [
+    {
+      "id": "RINSE_NORMAL",
+      "title": {
+        "en": "Normal",
+        "nl": "Normaal"
+      }
+    },
+    {
+      "id": "RINSE_PLUS",
+      "title": {
+        "en": "Extra",
+        "nl": "Extra"
+      }
+    },
+    {
+      "id": "RINSE_PLUSPLUS",
+      "title": {
+        "en": "Extra +",
+        "nl": "Extra +"
+      }
+    },
+    {
+      "id": "RINSE_NORMAL_HOLD",
+      "title": {
+        "en": "Normal + hold",
+        "nl": "Normaal + stop"
+      }
+    },
+    {
+      "id": "RINSE_PLUS_HOLD",
+      "title": {
+        "en": "Extra + hold",
+        "nl": "Extra + stop"
+      }
+    }
+  ]
+}

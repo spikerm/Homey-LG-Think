@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Download extra program",
+    "nl": "Download extra programma"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "program",
+      "type": "autocomplete",
+      "title": {
+        "en": "Extra program",
+        "nl": "Extra programma"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Download extra program [[program]]",
+    "nl": "Download extra programma [[program]]"
+  }
+}

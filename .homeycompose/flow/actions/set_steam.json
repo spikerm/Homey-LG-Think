@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set steam",
+    "nl": "Stel stoom in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "enabled",
+      "type": "checkbox",
+      "title": {
+        "en": "Steam on",
+        "nl": "Stoom aan"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set steam to [[enabled]]",
+    "nl": "Stel stoom in op [[enabled]]"
+  }
+}

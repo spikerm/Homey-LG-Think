@@ -1,0 +1,33 @@
+{
+  "title": {
+    "en": "Select wash program",
+    "nl": "Selecteer wasprogramma"
+  },
+  "hint": {
+    "en": "Select only the wash program. Use the separate Flow cards for temperature, spin, rinse and other options.",
+    "nl": "Selecteer alleen het wasprogramma. Gebruik de aparte Flow-kaarten voor temperatuur, centrifugeren, spoelen en overige opties."
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "program",
+      "type": "autocomplete",
+      "title": {
+        "en": "Program",
+        "nl": "Wasprogramma"
+      },
+      "placeholder": {
+        "en": "Choose program",
+        "nl": "Kies programma"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Select wash program [[program]]",
+    "nl": "Selecteer wasprogramma [[program]]"
+  }
+}

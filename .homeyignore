@@ -1,0 +1,10 @@
+.git/
+.github/
+node_modules/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+*.zip
+README.md
+CHANGELOG.md
+APP_STORE_REVIEW_NOTES.md

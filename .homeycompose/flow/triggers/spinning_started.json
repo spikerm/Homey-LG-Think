@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Spinning started",
+    "nl": "Centrifugeren gestart"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

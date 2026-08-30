@@ -1,0 +1,140 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Delay end",
+    "nl": "Uitgestelde eindtijd"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "insights": false,
+  "icon": "/assets/capabilities/time.svg",
+  "values": [
+    {
+      "id": "0",
+      "title": {
+        "en": "Off",
+        "nl": "Uit"
+      }
+    },
+    {
+      "id": "3",
+      "title": {
+        "en": "3 hours",
+        "nl": "3 uur"
+      }
+    },
+    {
+      "id": "4",
+      "title": {
+        "en": "4 hours",
+        "nl": "4 uur"
+      }
+    },
+    {
+      "id": "5",
+      "title": {
+        "en": "5 hours",
+        "nl": "5 uur"
+      }
+    },
+    {
+      "id": "6",
+      "title": {
+        "en": "6 hours",
+        "nl": "6 uur"
+      }
+    },
+    {
+      "id": "7",
+      "title": {
+        "en": "7 hours",
+        "nl": "7 uur"
+      }
+    },
+    {
+      "id": "8",
+      "title": {
+        "en": "8 hours",
+        "nl": "8 uur"
+      }
+    },
+    {
+      "id": "9",
+      "title": {
+        "en": "9 hours",
+        "nl": "9 uur"
+      }
+    },
+    {
+      "id": "10",
+      "title": {
+        "en": "10 hours",
+        "nl": "10 uur"
+      }
+    },
+    {
+      "id": "11",
+      "title": {
+        "en": "11 hours",
+        "nl": "11 uur"
+      }
+    },
+    {
+      "id": "12",
+      "title": {
+        "en": "12 hours",
+        "nl": "12 uur"
+      }
+    },
+    {
+      "id": "13",
+      "title": {
+        "en": "13 hours",
+        "nl": "13 uur"
+      }
+    },
+    {
+      "id": "14",
+      "title": {
+        "en": "14 hours",
+        "nl": "14 uur"
+      }
+    },
+    {
+      "id": "15",
+      "title": {
+        "en": "15 hours",
+        "nl": "15 uur"
+      }
+    },
+    {
+      "id": "16",
+      "title": {
+        "en": "16 hours",
+        "nl": "16 uur"
+      }
+    },
+    {
+      "id": "17",
+      "title": {
+        "en": "17 hours",
+        "nl": "17 uur"
+      }
+    },
+    {
+      "id": "18",
+      "title": {
+        "en": "18 hours",
+        "nl": "18 uur"
+      }
+    },
+    {
+      "id": "19",
+      "title": {
+        "en": "19 hours",
+        "nl": "19 uur"
+      }
+    }
+  ]
+}

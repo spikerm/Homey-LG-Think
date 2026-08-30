@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set spin speed",
+    "nl": "Stel centrifugetoerental in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "value",
+      "type": "autocomplete",
+      "title": {
+        "en": "Spin speed",
+        "nl": "Centrifugeren"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set spin speed to [[value]]",
+    "nl": "Stel centrifugetoerental in op [[value]]"
+  }
+}

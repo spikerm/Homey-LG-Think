@@ -1,0 +1,33 @@
+{
+  "id": "com.rexm.lgthinq",
+  "version": "0.7.2",
+  "compatibility": ">=12.3.0",
+  "sdk": 3,
+  "runtime": "nodejs",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "LG ThinQ",
+    "nl": "LG ThinQ"
+  },
+  "description": {
+    "en": "Connect LG ThinQ appliances to Homey and control them intelligently with Energy-aware automation.",
+    "nl": "Koppel LG ThinQ-apparaten aan Homey en stuur ze slim aan met energieprijsbewuste automatisering."
+  },
+  "category": "appliances",
+  "brandColor": "#A50034",
+  "author": {
+    "name": "Rex"
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "permissions": [
+    "homey:manager:api"
+  ],
+  "homepage": "https://github.com/spikerm/Homey-LG-Think",
+  "support": "https://github.com/spikerm/Homey-LG-Think/issues"
+}

@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set temperature",
+    "nl": "Stel temperatuur in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "value",
+      "type": "autocomplete",
+      "title": {
+        "en": "Temperature",
+        "nl": "Temperatuur"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set temperature to [[value]]",
+    "nl": "Stel temperatuur in op [[value]]"
+  }
+}

@@ -1,0 +1,10 @@
+0.7.2
+- Prevent WMWakeup from being sent while a wash cycle is active.
+- Prevent duplicate Start commands from disturbing an active wash.
+- Sanitize HTTP error logging in diagnostics.
+- Correct current LG error value in error Flow trigger.
+
+0.7.1
+- Added GitHub repository metadata.
+- Added GitHub Issues as support and bug-reporting channel.
+- App Store preparation improvements.

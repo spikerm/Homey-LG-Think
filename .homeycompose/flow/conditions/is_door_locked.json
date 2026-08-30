@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Door is locked",
+    "nl": "Deur is vergrendeld"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

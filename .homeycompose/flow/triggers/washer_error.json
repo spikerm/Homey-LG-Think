@@ -1,0 +1,31 @@
+{
+  "title": {
+    "en": "Washer error",
+    "nl": "Wasmachine storing"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "error",
+      "type": "string",
+      "title": {
+        "en": "Error",
+        "nl": "Foutmelding"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message",
+        "nl": "Bericht"
+      }
+    }
+  ]
+}

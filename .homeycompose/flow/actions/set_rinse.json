@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set rinse",
+    "nl": "Stel spoelen in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "value",
+      "type": "autocomplete",
+      "title": {
+        "en": "Rinse",
+        "nl": "Spoelen"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set rinse to [[value]]",
+    "nl": "Stel spoelen in op [[value]]"
+  }
+}

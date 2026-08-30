@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set dry level",
+    "nl": "Stel droogniveau in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "value",
+      "type": "autocomplete",
+      "title": {
+        "en": "Dry level",
+        "nl": "Droogniveau"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set dry level to [[value]]",
+    "nl": "Stel droogniveau in op [[value]]"
+  }
+}

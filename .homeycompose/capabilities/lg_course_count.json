@@ -1,0 +1,12 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Course count",
+    "nl": "Aantal programma's"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": false,
+  "icon": "/assets/capabilities/program.svg"
+}

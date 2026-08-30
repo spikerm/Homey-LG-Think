@@ -1,0 +1,91 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Spin setting",
+    "nl": "Centrifugeren instellen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "insights": false,
+  "icon": "/assets/capabilities/spin.svg",
+  "values": [
+    {
+      "id": "NO_SPIN",
+      "title": {
+        "en": "No spin",
+        "nl": "Niet centrifugeren"
+      }
+    },
+    {
+      "id": "SPIN_400",
+      "title": {
+        "en": "400 rpm",
+        "nl": "400 rpm"
+      }
+    },
+    {
+      "id": "SPIN_600",
+      "title": {
+        "en": "600 rpm",
+        "nl": "600 rpm"
+      }
+    },
+    {
+      "id": "SPIN_700",
+      "title": {
+        "en": "700 rpm",
+        "nl": "700 rpm"
+      }
+    },
+    {
+      "id": "SPIN_800",
+      "title": {
+        "en": "800 rpm",
+        "nl": "800 rpm"
+      }
+    },
+    {
+      "id": "SPIN_900",
+      "title": {
+        "en": "900 rpm",
+        "nl": "900 rpm"
+      }
+    },
+    {
+      "id": "SPIN_1000",
+      "title": {
+        "en": "1000 rpm",
+        "nl": "1000 rpm"
+      }
+    },
+    {
+      "id": "SPIN_1100",
+      "title": {
+        "en": "1100 rpm",
+        "nl": "1100 rpm"
+      }
+    },
+    {
+      "id": "SPIN_1200",
+      "title": {
+        "en": "1200 rpm",
+        "nl": "1200 rpm"
+      }
+    },
+    {
+      "id": "SPIN_1600",
+      "title": {
+        "en": "1600 rpm",
+        "nl": "1600 rpm"
+      }
+    },
+    {
+      "id": "SPIN_Max",
+      "title": {
+        "en": "Maximum",
+        "nl": "Maximum"
+      }
+    }
+  ]
+}

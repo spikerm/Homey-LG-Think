@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set medic rinse",
+    "nl": "Stel extra hygiënisch spoelen in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "enabled",
+      "type": "checkbox",
+      "title": {
+        "en": "Medic rinse on",
+        "nl": "Hygiënisch spoelen aan"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set medic rinse to [[enabled]]",
+    "nl": "Stel hygiënisch spoelen in op [[enabled]]"
+  }
+}

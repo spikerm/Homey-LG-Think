@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Remaining time",
+    "nl": "Resterende tijd"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": false,
+  "icon": "/assets/capabilities/time.svg"
+}

@@ -1,0 +1,39 @@
+{
+  "title": {
+    "en": "Smart wash started automatically",
+    "nl": "Slim wassen automatisch gestart"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "program",
+      "type": "string",
+      "title": {
+        "en": "Program",
+        "nl": "Programma"
+      }
+    },
+    {
+      "name": "start_time",
+      "type": "string",
+      "title": {
+        "en": "Start time",
+        "nl": "Starttijd"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message",
+        "nl": "Bericht"
+      }
+    }
+  ]
+}

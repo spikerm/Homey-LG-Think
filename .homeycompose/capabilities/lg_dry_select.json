@@ -1,0 +1,112 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Dry level setting",
+    "nl": "Droogniveau instellen"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "insights": false,
+  "icon": "/assets/capabilities/dry.svg",
+  "values": [
+    {
+      "id": "NOT_SELECTED",
+      "title": {
+        "en": "Not selected",
+        "nl": "Niet geselecteerd"
+      }
+    },
+    {
+      "id": "NO_DRYLEVEL",
+      "title": {
+        "en": "No drying",
+        "nl": "Niet drogen"
+      }
+    },
+    {
+      "id": "DRYLEVEL_NORMAL",
+      "title": {
+        "en": "Normal",
+        "nl": "Normaal"
+      }
+    },
+    {
+      "id": "DRYLEVEL_30",
+      "title": {
+        "en": "30 minutes",
+        "nl": "30 minuten"
+      }
+    },
+    {
+      "id": "DRYLEVEL_60",
+      "title": {
+        "en": "60 minutes",
+        "nl": "60 minuten"
+      }
+    },
+    {
+      "id": "DRYLEVEL_90",
+      "title": {
+        "en": "90 minutes",
+        "nl": "90 minuten"
+      }
+    },
+    {
+      "id": "DRYLEVEL_120",
+      "title": {
+        "en": "120 minutes",
+        "nl": "120 minuten"
+      }
+    },
+    {
+      "id": "DRYLEVEL_150",
+      "title": {
+        "en": "150 minutes",
+        "nl": "150 minuten"
+      }
+    },
+    {
+      "id": "DRYLEVEL_ECO",
+      "title": {
+        "en": "Eco",
+        "nl": "Eco"
+      }
+    },
+    {
+      "id": "DRYLEVEL_VERY",
+      "title": {
+        "en": "Extra dry",
+        "nl": "Extra droog"
+      }
+    },
+    {
+      "id": "DRYLEVEL_IRON",
+      "title": {
+        "en": "Iron dry",
+        "nl": "Strijkdroog"
+      }
+    },
+    {
+      "id": "DRYLEVEL_LOW",
+      "title": {
+        "en": "Low temperature",
+        "nl": "Lage temperatuur"
+      }
+    },
+    {
+      "id": "DRYLEVEL_ENERGY",
+      "title": {
+        "en": "Energy",
+        "nl": "Energie"
+      }
+    },
+    {
+      "id": "DRYLEVEL_SPEED",
+      "title": {
+        "en": "Speed",
+        "nl": "Snel"
+      }
+    }
+  ]
+}

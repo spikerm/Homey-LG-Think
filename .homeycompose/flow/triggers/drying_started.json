@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Drying started",
+    "nl": "Drogen gestart"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

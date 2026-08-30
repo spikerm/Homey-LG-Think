@@ -1,0 +1,49 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Wash intensity",
+    "nl": "Wasintensiteit"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "insights": false,
+  "icon": "/assets/capabilities/program.svg",
+  "values": [
+    {
+      "id": "NO_SOILWASH",
+      "title": {
+        "en": "Not selected",
+        "nl": "Niet geselecteerd"
+      }
+    },
+    {
+      "id": "SOILWASH_NORMAL",
+      "title": {
+        "en": "Normal",
+        "nl": "Normaal"
+      }
+    },
+    {
+      "id": "SOILWASH_INTENSIVE",
+      "title": {
+        "en": "Intensive",
+        "nl": "Intensief"
+      }
+    },
+    {
+      "id": "SOILWASH_TIMESAVE",
+      "title": {
+        "en": "Time save",
+        "nl": "Tijdbesparing"
+      }
+    },
+    {
+      "id": "SOILWASH_TURBO_WASH",
+      "title": {
+        "en": "Turbo wash",
+        "nl": "Turbo wash"
+      }
+    }
+  ]
+}

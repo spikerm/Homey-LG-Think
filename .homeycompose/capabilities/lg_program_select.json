@@ -1,0 +1,112 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Program",
+    "nl": "Wasprogramma"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "insights": false,
+  "icon": "/assets/capabilities/program.svg",
+  "values": [
+    {
+      "id": "COTTON",
+      "title": {
+        "en": "Katoen",
+        "nl": "Katoen"
+      }
+    },
+    {
+      "id": "EASYCARE",
+      "title": {
+        "en": "Easy Care",
+        "nl": "Easy Care"
+      }
+    },
+    {
+      "id": "COTTONPLUS",
+      "title": {
+        "en": "Eco 40-60",
+        "nl": "Eco 40-60"
+      }
+    },
+    {
+      "id": "MIXEDFABRIC",
+      "title": {
+        "en": "Mix",
+        "nl": "Mix"
+      }
+    },
+    {
+      "id": "BABYSTEAMCARE",
+      "title": {
+        "en": "Baby Steam Care",
+        "nl": "Baby Steam Care"
+      }
+    },
+    {
+      "id": "SPEED14",
+      "title": {
+        "en": "Snel 14",
+        "nl": "Snel 14"
+      }
+    },
+    {
+      "id": "TUB_CLEAN",
+      "title": {
+        "en": "Trommelreiniging",
+        "nl": "Trommelreiniging"
+      }
+    },
+    {
+      "id": "WOOL",
+      "title": {
+        "en": "Wol",
+        "nl": "Wol"
+      }
+    },
+    {
+      "id": "DELICATE",
+      "title": {
+        "en": "Fijne was",
+        "nl": "Fijne was"
+      }
+    },
+    {
+      "id": "ALLERGYSPASTEAM",
+      "title": {
+        "en": "Allergie/Stoom",
+        "nl": "Allergie/Stoom"
+      }
+    },
+    {
+      "id": "TURBO59",
+      "title": {
+        "en": "Turbo Wash 59",
+        "nl": "Turbo Wash 59"
+      }
+    },
+    {
+      "id": "DRYONLY",
+      "title": {
+        "en": "Alleen drogen",
+        "nl": "Alleen drogen"
+      }
+    },
+    {
+      "id": "WASHDRY",
+      "title": {
+        "en": "Wassen + drogen",
+        "nl": "Wassen + drogen"
+      }
+    },
+    {
+      "id": "SPINONLY",
+      "title": {
+        "en": "Spin only",
+        "nl": "Alleen centrifugeren"
+      }
+    }
+  ]
+}

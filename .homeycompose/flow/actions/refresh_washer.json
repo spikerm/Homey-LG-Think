@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Refresh washer now",
+    "nl": "Ververs wasmachine nu"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

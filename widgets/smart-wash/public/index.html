@@ -1,0 +1,609 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    * { box-sizing:border-box; }
+    html,body { width:100%; margin:0; padding:0; overflow-x:hidden; }\n    body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .wrap { display:grid; gap:10px; width:100%; max-width:100%; min-width:0; }
+    .top { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+    .title { font-weight:700; font-size:17px; }
+    .status { font-size:12px; opacity:.7; text-align:right; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    label { display:grid; gap:4px; font-size:11px; opacity:.82; }
+    select,input { width:100%; border:1px solid rgba(127,127,127,.28); border-radius:9px; padding:8px; background:transparent; color:inherit; }
+    .toggles { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+    .toggle { border:1px solid rgba(127,127,127,.22); border-radius:9px; padding:7px; font-size:11px; display:flex; align-items:center; gap:5px; }
+    .toggle input { width:auto; }
+    .card { border:1px solid rgba(127,127,127,.20); border-radius:12px; padding:10px; }
+    .plan { font-size:13px; line-height:1.45; }
+    .price { font-size:20px; font-weight:700; }
+    .buttons { display:grid; grid-template-columns:1.35fr 1fr 1fr; gap:7px; }
+    button { border:0; border-radius:10px; padding:10px 8px; font-weight:650; cursor:pointer; }
+    .primary { background:#A50034; color:white; }
+    .secondary { background:rgba(127,127,127,.16); color:inherit; }
+    .danger { background:rgba(190,30,45,.14); color:inherit; }
+    .msg { min-height:18px; font-size:12px; opacity:.8; }
+    .hidden { display:none!important; }
+    .small { font-size:11px; opacity:.7; }
+  
+  button:disabled,
+  .button:disabled,
+  input[type="button"]:disabled,
+  input[type="submit"]:disabled {
+    opacity: 0.42 !important;
+    filter: grayscale(1) !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+  }
+  button:disabled:hover,
+  .button:disabled:hover {
+    transform: none !important;
+  }
+
+</style>
+</head>
+<body class="homey-widget">
+<div class="wrap">
+  <div class="top">
+    <div><div class="title">Slim Wassen</div><div id="deviceName" class="small">LG ThinQ</div></div>
+    <div id="machineStatus" class="status">Laden…</div>
+  </div>
+  <div id="remoteWarning" class="card hidden" style="font-size:12px;border-color:rgba(198,40,40,.45)">⚠ Remote Start is niet actief. Plannen kan wel, maar automatisch starten lukt pas als Remote Start op de wasmachine actief is.</div>
+
+  <div class="grid">
+    <label>Wasprogramma<select id="program"></select></label>
+    <label>Temperatuur<select id="temp"></select></label>
+    <label>Centrifugeren<select id="spin"></select></label>
+    <label>Spoelen<select id="rinse"></select></label>
+    <label>Drogen<select id="dryLevel"></select></label>
+    <label>Wasintensiteit<select id="soilWash"></select></label>
+  </div>
+
+  <div class="toggles">
+    <label class="toggle"><input id="preWash" type="checkbox"> Voorwas</label>
+    <label class="toggle"><input id="turboWash" type="checkbox"> TurboWash</label>
+    <label class="toggle"><input id="steam" type="checkbox"> Stoom</label>
+    <label class="toggle"><input id="medicRinse" type="checkbox"> Hygiënisch</label>
+    <label class="toggle"><input id="ecoHybrid" type="checkbox"> Eco Hybrid</label>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <label>Verwachte duur (min)<input id="duration" type="number" min="15" max="600" step="5" value="120"></label>
+      <label>Uiterlijk klaar<input id="deadline" type="datetime-local"></label>
+    </div>
+    <div style="height:8px"></div>
+    <button id="calculate" class="secondary" style="width:100%">Zoek goedkoopste tijdvak</button>
+  </div>
+
+  <div id="result" class="card plan hidden">
+    <div class="small">Goedkoopste planning</div>
+    <div><strong id="planTime"></strong></div>
+    <div><span id="planPrice" class="price"></span> <span class="small">gemiddeld / kWh</span></div>
+    <div id="planInfo" class="small"></div>
+  </div>
+
+  <div id="activePlan" class="card plan hidden"></div>
+
+  <div class="buttons">
+    <button id="save" class="primary" disabled>Plan wassen</button>
+    <button id="start" class="secondary">Nu starten</button>
+    <button id="wake" class="secondary">Wakker maken</button>
+  </div>
+  <button id="cancel" class="danger hidden">Planning annuleren</button>
+  <div id="msg" class="msg"></div>
+</div>
+
+<script>
+function onHomeyReady(Homey) {
+  const $ = id => document.getElementById(id);
+  let deviceId = null;
+  let state = null;
+  let preview = null;
+  let readyCalled = false;
+  let heightObserver = null;
+  let heightTimer = null;
+  let lastWidgetHeight = 0;
+
+  function getWidgetHeight() {
+    const wrap = document.querySelector('.wrap');
+    if (!wrap) return 620;
+    // Height of visible content only. Hidden result/plan blocks do not count.
+    return Math.max(260, Math.ceil(wrap.getBoundingClientRect().height + 2));
+  }
+
+  function syncWidgetHeight(initial = false) {
+    clearTimeout(heightTimer);
+    heightTimer = setTimeout(async () => {
+      const height = getWidgetHeight();
+      if (Math.abs(height - lastWidgetHeight) < 2 && readyCalled) return;
+      lastWidgetHeight = height;
+
+      try {
+        if (!readyCalled || initial) {
+          if (!readyCalled) {
+            readyCalled = true;
+            Homey.ready({ height });
+          } else if (Homey.setHeight) {
+            await Homey.setHeight(height);
+          }
+        } else if (Homey.setHeight) {
+          await Homey.setHeight(height);
+        }
+      } catch (e) {
+        // Height update is cosmetic; never block widget operation on it.
+      }
+    }, 20);
+  }
+
+  function startHeightObserver() {
+    if (heightObserver || typeof ResizeObserver === 'undefined') return;
+    const wrap = document.querySelector('.wrap');
+    if (!wrap) return;
+
+    heightObserver = new ResizeObserver(() => syncWidgetHeight(false));
+    heightObserver.observe(wrap);
+  }
+
+  const labels = {
+    TEMP_COLD:'Koud', TEMP_20:'20 °C', TEMP_30:'30 °C', TEMP_40:'40 °C', TEMP_50:'50 °C', TEMP_60:'60 °C', TEMP_95:'95 °C',
+    NO_TEMP:'Niet geselecteerd',
+    NO_SPIN:'Niet centrifugeren', SPIN_400:'400 rpm', SPIN_600:'600 rpm', SPIN_700:'700 rpm', SPIN_800:'800 rpm',
+    SPIN_900:'900 rpm', SPIN_1000:'1000 rpm', SPIN_1100:'1100 rpm', SPIN_1200:'1200 rpm', SPIN_Max:'Maximum',
+    NOT_SELECTED:'Niet geselecteerd',
+    NO_RINSE:'Niet geselecteerd', RINSE_NORMAL:'Normaal', RINSE_PLUS:'Extra', RINSE_PLUSPLUS:'Extra +',
+    RINSE_NORMAL_HOLD:'Normaal + stop', RINSE_PLUS_HOLD:'Extra + stop',
+    NO_DRYLEVEL:'Niet drogen', DRYLEVEL_NORMAL:'Normaal', DRYLEVEL_30:'30 min', DRYLEVEL_60:'60 min',
+    DRYLEVEL_90:'90 min', DRYLEVEL_120:'120 min', DRYLEVEL_150:'150 min', DRYLEVEL_ECO:'Eco',
+    DRYLEVEL_VERY:'Extra droog', DRYLEVEL_IRON:'Strijkdroog', DRYLEVEL_LOW:'Lage temperatuur',
+    NO_SOILWASH:'Niet geselecteerd', SOILWASH_NORMAL:'Normaal', SOILWASH_INTENSIVE:'Intensief',
+    SOILWASH_TIMESAVE:'Tijdbesparing', SOILWASH_TURBO_WASH:'Turbo Wash'
+  };
+  const label = v => labels[v] || String(v || '').replaceAll('_',' ');
+
+  function fmt(ms) {
+    return new Intl.DateTimeFormat('nl-NL',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(ms));
+  }
+  function money(v) {
+    if (!Number.isFinite(Number(v))) return '—';
+    return '€ ' + Number(v).toFixed(4).replace('.',',');
+  }
+  function msg(text, error=false) {
+    $('msg').textContent = text || '';
+    $('msg').style.color = error ? '#c62828' : '';
+  }
+  function machineIsActive(data) {
+    const status = String(data?.status || '').toLowerCase();
+    return ['wassen','spoelen','centrifugeren','drogen','running','washing','rinsing','spinning','drying',
+            'belading detecteren','detecting','gepauzeerd','pause'].some(x => status.includes(x));
+  }
+
+  function updateActionButtons(data) {
+    const active = machineIsActive(data);
+    // Keep the controls visible, but make them clearly inactive while LG is busy.
+    $('calculate').classList.remove('hidden');
+    $('save').classList.remove('hidden');
+    $('start').classList.remove('hidden');
+    $('wake').classList.remove('hidden');
+
+    $('calculate').disabled = active;
+    $('start').disabled = active;
+    $('wake').disabled = active;
+    // Plan wassen is only valid after a price preview, and never while active.
+    $('save').disabled = active || !preview;
+
+    const busy = 'Niet beschikbaar zolang de wasmachine actief is';
+    $('calculate').title = active ? busy : '';
+    $('save').title = active ? busy : '';
+    $('wake').title = active ? busy : '';
+    $('start').title = active ? 'Wasmachine is al actief'
+      : (data?.remoteControl === true ? '' : 'Remote Start is niet actief');
+
+    syncWidgetHeight(false);
+  }
+
+  function renderMachineStatus(data) {
+    if (!data) return;
+
+    const remoteActive = data.remoteControl === true;
+    $('remoteWarning').classList.toggle('hidden', remoteActive);
+    if (!remoteActive) $('start').title = 'Remote Start is niet actief';
+    else $('start').title = '';
+    updateActionButtons(data);
+    syncWidgetHeight(false);
+
+    const err = data.error && data.error !== 'ERROR_NO' ? String(data.error) : null;
+    if (err) {
+      $('machineStatus').textContent = '⚠ Fout · ' + err;
+      $('machineStatus').style.color = '#c62828';
+      $('machineStatus').title = 'LG foutmelding: ' + err;
+      return;
+    }
+
+    $('machineStatus').style.color = '';
+    $('machineStatus').title = '';
+
+    const status = String(data.status || 'Onbekend');
+    const remaining = data.remaining;
+    const lower = status.toLowerCase();
+    const active = ['wassen','spoelen','centrifugeren','drogen','running','washing','rinsing','spinning','drying']
+      .some(x => lower.includes(x));
+
+    if (active && remaining && remaining !== '0:00' && remaining !== '0u 00m') {
+      $('machineStatus').textContent = status + ' · nog ' + remaining;
+    } else if (active) {
+      $('machineStatus').textContent = status;
+    } else {
+      $('machineStatus').textContent = status + (data.remoteControl ? ' · Remote ✓' : ' · Remote ✕');
+    }
+  }
+
+  function fillSelect(id, values, current) {
+    const el=$(id);
+    const old=el.value;
+    el.innerHTML='';
+    const list = (values || []).filter(Boolean);
+    if (!list.length) {
+      const o=document.createElement('option'); o.value=''; o.textContent='Niet beschikbaar'; el.appendChild(o); el.disabled=true; return;
+    }
+    el.disabled=false;
+    for (const v of list) {
+      const o=document.createElement('option'); o.value=v; o.textContent=label(v); el.appendChild(o);
+    }
+    if (list.includes(old)) el.value=old;
+    else if (current && list.includes(current)) el.value=current;
+  }
+  function currentCourse() {
+    return state?.programs?.find(p => p.id === $('program').value);
+  }
+  function expectedDurationForSelection() {
+    const course = currentCourse();
+    if (!course) return 120;
+
+    let minutes = Number(course.expectedDurationMinutes || 120);
+    const dry = $('dryLevel')?.value;
+    const timedDry = {
+      DRYLEVEL_30:30, DRYLEVEL_60:60, DRYLEVEL_90:90,
+      DRYLEVEL_120:120, DRYLEVEL_150:150
+    };
+
+    if (course.id === 'DRYONLY' && timedDry[dry]) minutes = timedDry[dry];
+    if (course.id === 'WASHDRY' && timedDry[dry]) minutes = 90 + timedDry[dry];
+    return Math.max(14, Math.min(600, Math.round(minutes)));
+  }
+
+  function updateExpectedDuration() {
+    $('duration').value = expectedDurationForSelection();
+    preview = null;
+    $('save').disabled = true;
+    $('result').classList.add('hidden');
+  }
+  function optionValues(key) {
+    const o=currentCourse()?.options?.[key];
+    return o?.selectable?.length ? o.selectable : (o?.default ? [o.default] : []);
+  }
+  function courseDefault(key) {
+    return currentCourse()?.options?.[key]?.default || null;
+  }
+  function refreshOptions() {
+    fillSelect('temp',optionValues('temp'),courseDefault('temp'));
+    fillSelect('spin',optionValues('spin'),courseDefault('spin'));
+    fillSelect('rinse',optionValues('rinse'),courseDefault('rinse'));
+    fillSelect('dryLevel',optionValues('dryLevel'),courseDefault('dryLevel'));
+    fillSelect('soilWash',optionValues('soilWash'),courseDefault('soilWash'));
+    for (const [id,key,on] of [
+      ['preWash','preWash','PREWASH_ON'],['turboWash','turboWash','TURBOWASH_ON'],['steam','steam','STEAM_ON'],
+      ['medicRinse','medicRinse','MEDICRINSE_ON'],['ecoHybrid','ecoHybrid','ECOHYBRID_ON']
+    ]) {
+      const opt=currentCourse()?.options?.[key];
+      const el=$(id);
+      el.disabled=!opt || (!opt.selectable?.length && !opt.default);
+      el.checked=(opt?.default===on);
+    }
+  }
+  function applyMachineSelections(data) {
+    if (!data) return;
+
+    const status = String(data.status || '').toLowerCase();
+    const active = ['wassen','spoelen','centrifugeren','drogen','running','washing','rinsing','spinning','drying',
+                    'belading detecteren','detecting','gepauzeerd','pause']
+      .some(x => status.includes(x));
+
+    // While the machine is running, the widget must show what LG actually
+    // reports instead of the model defaults/pending start values.
+    if (!active) return;
+
+    const pid = data.currentProgramId;
+    if (pid && [...$('program').options].some(o => o.value === pid) && $('program').value !== pid) {
+      $('program').value = pid;
+      refreshOptions();
+    }
+
+    const opts = data.liveOptions || {};
+    for (const id of ['temp','spin','rinse','dryLevel','soilWash']) {
+      const value = opts[id];
+      const el = $(id);
+      if (!value || !el || el.disabled) continue;
+
+      // LG sometimes reports a runtime value not present in the model's
+      // selectable list. Show it anyway because it is the actual machine value.
+      if (![...el.options].some(o => o.value === value)) {
+        const o = document.createElement('option');
+        o.value = value;
+        o.textContent = label(value);
+        el.appendChild(o);
+      }
+      el.value = value;
+    }
+
+    const bools = {
+      preWash:'PREWASH_ON',
+      turboWash:'TURBOWASH_ON',
+      steam:'STEAM_ON',
+      medicRinse:'MEDICRINSE_ON',
+      ecoHybrid:'ECOHYBRID_ON'
+    };
+    for (const [id,onValue] of Object.entries(bools)) {
+      const el=$(id);
+      if (!el || el.disabled || !opts[id]) continue;
+      el.checked = opts[id] === onValue;
+    }
+  }
+
+  function applySelectedConfig(selected) {
+    if (!selected?.options) return;
+    const opts=selected.options;
+
+    for (const id of ['temp','spin','rinse','dryLevel','soilWash']) {
+      const el=$(id), value=opts[id];
+      if (!el || el.disabled || !value) continue;
+      if ([...el.options].some(o=>o.value===value)) el.value=value;
+    }
+
+    const bools = {
+      preWash:'PREWASH_ON',
+      turboWash:'TURBOWASH_ON',
+      steam:'STEAM_ON',
+      medicRinse:'MEDICRINSE_ON',
+      ecoHybrid:'ECOHYBRID_ON'
+    };
+    for (const [id,onValue] of Object.entries(bools)) {
+      const el=$(id);
+      if (!el || el.disabled || !opts[id]) continue;
+      el.checked=opts[id]===onValue;
+    }
+  }
+
+  function config() {
+    const options={};
+    for (const id of ['temp','spin','rinse','dryLevel','soilWash']) {
+      const el=$(id); if (!el.disabled && el.value) options[id]=el.value;
+    }
+    const bools=[
+      ['preWash','PREWASH_ON','PREWASH_OFF'],['turboWash','TURBOWASH_ON','TURBOWASH_OFF'],
+      ['steam','STEAM_ON','STEAM_OFF'],['medicRinse','MEDICRINSE_ON','MEDICRINSE_OFF'],
+      ['ecoHybrid','ECOHYBRID_ON','ECOHYBRID_OFF']
+    ];
+    for (const [id,on,off] of bools) {
+      const el=$(id); if (!el.disabled) options[id]=el.checked?on:off;
+    }
+    return { programId:$('program').value, options };
+  }
+  function planProgramName(plan) {
+    const id = plan?.config?.programId;
+    if (!id) return null;
+    return state?.programs?.find(p => p.id === id)?.name || label(id);
+  }
+
+  function planOptionSummary(plan) {
+    const o = plan?.config?.options || {};
+    const parts = [];
+
+    if (o.temp && o.temp !== 'NO_TEMP' && o.temp !== 'NOT_SELECTED') parts.push(label(o.temp));
+    if (o.spin) parts.push(label(o.spin));
+    if (o.rinse && o.rinse !== 'NO_RINSE' && o.rinse !== 'NOT_SELECTED') parts.push('Spoelen: '+label(o.rinse));
+    if (o.dryLevel && !['NO_DRYLEVEL','NOT_SELECTED'].includes(o.dryLevel)) parts.push('Drogen: '+label(o.dryLevel));
+    if (o.soilWash && !['NO_SOILWASH','NOT_SELECTED'].includes(o.soilWash)) parts.push('Intensiteit: '+label(o.soilWash));
+
+    const enabled = [];
+    if (o.preWash === 'PREWASH_ON') enabled.push('Voorwas');
+    if (o.turboWash === 'TURBOWASH_ON') enabled.push('TurboWash');
+    if (o.steam === 'STEAM_ON') enabled.push('Stoom');
+    if (o.medicRinse === 'MEDICRINSE_ON') enabled.push('Hygiënisch');
+    if (o.ecoHybrid === 'ECOHYBRID_ON') enabled.push('Eco Hybrid');
+    if (enabled.length) parts.push(enabled.join(', '));
+
+    return parts.join(' · ');
+  }
+
+  function showPlan(plan) {
+    if (!plan || !['scheduled','starting','started','failed'].includes(plan.status)) {
+      $('activePlan').classList.add('hidden'); $('cancel').classList.add('hidden'); return;
+    }
+    const names={scheduled:'Gepland',starting:'Wordt gestart',started:'Gestart',failed:'Mislukt'};
+    $('activePlan').classList.remove('hidden');
+    const locked = plan.status === 'scheduled' && Number(plan.startAt) <= Date.now() + 15*60*1000;
+    const replanInfo = plan.status === 'scheduled'
+      ? (locked ? 'Planning vastgezet' : 'Automatisch herplannen actief')
+      : '';
+    const adjusted = Number(plan.replanCount || 0) > 0 ? ` · ${plan.replanCount}× aangepast` : '';
+
+    const plannedProgram = planProgramName(plan);
+    const plannedOptions = planOptionSummary(plan);
+
+    $('activePlan').innerHTML='<strong>'+names[plan.status]+'</strong><br>'+
+      (plannedProgram ? '<strong>Programma: '+plannedProgram+'</strong><br>' : '')+
+      (plannedOptions ? '<span class="small">'+plannedOptions+'</span><br>' : '')+
+      (Number.isFinite(Number(plan.durationMinutes)) ? 'Duur: '+Number(plan.durationMinutes)+' min<br>' : '')+
+      (plan.startAt ? 'Start: '+fmt(plan.startAt)+'<br>' : '')+
+      (plan.deadlineAt ? 'Uiterlijk klaar: '+fmt(plan.deadlineAt)+'<br>' : '')+
+      (Number.isFinite(Number(plan.averagePrice)) ? 'Gemiddelde prijs: '+money(plan.averagePrice)+'/kWh<br>' : '')+
+      (replanInfo ? '<span class="small">'+replanInfo+adjusted+'</span><br>' : '')+
+      (plan.lastError ? '<span style="color:#c62828">'+plan.lastError+'</span>' : '');
+    if (plan.status === 'scheduled') $('cancel').classList.remove('hidden');
+    else $('cancel').classList.add('hidden');
+    syncWidgetHeight(false);
+  }
+
+  async function refreshLiveStatus() {
+    if (!deviceId) return;
+    try {
+      const live = await Homey.api('GET','/live?deviceId='+encodeURIComponent(deviceId),{});
+      renderMachineStatus(live);
+      applyMachineSelections(live);
+      if (state) Object.assign(state, live);
+    } catch(e) {
+      // Laat de laatst bekende status staan bij een tijdelijke widgetfout.
+    }
+  }
+
+  async function load() {
+    const ids=Homey.getDeviceIds();
+    deviceId=ids && ids[0];
+    if (!deviceId) { msg('Kies eerst een LG-wasmachine in de widgetinstellingen.',true); startHeightObserver(); syncWidgetHeight(true); return; }
+    try {
+      state=await Homey.api('GET','/state?deviceId='+encodeURIComponent(deviceId),{});
+      $('deviceName').textContent=state.name || 'LG ThinQ';
+      renderMachineStatus(state);
+      $('program').innerHTML='';
+      for (const p of state.programs||[]) {
+        const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; $('program').appendChild(o);
+      }
+      if (state.selected?.programId && [...$('program').options].some(o=>o.value===state.selected.programId)) $('program').value=state.selected.programId;
+      refreshOptions();
+      applySelectedConfig(state.selected);
+      applyMachineSelections(state);
+      updateExpectedDuration();
+      showPlan(state.plan);
+      msg('');
+    } catch(e) { msg(e.message||String(e),true); }
+    startHeightObserver();
+    syncWidgetHeight(true);
+  }
+
+  $('program').addEventListener('change',()=>{ refreshOptions(); updateExpectedDuration(); syncWidgetHeight(false); });
+  for (const id of ['temp','spin','rinse','soilWash','preWash','turboWash','steam','medicRinse','ecoHybrid','duration','deadline']) {
+    $(id).addEventListener('change',()=>{preview=null;$('save').disabled=true;$('result').classList.add('hidden');syncWidgetHeight(false);});
+  }
+  $('dryLevel').addEventListener('change',()=>{ updateExpectedDuration(); syncWidgetHeight(false); });
+
+  const d=new Date(Date.now()+12*3600000); d.setMinutes(0,0,0);
+  $('deadline').value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+
+  $('calculate').addEventListener('click',async()=>{
+    if ($('calculate').disabled) return;
+    try {
+      msg('Homey Energy-prijzen ophalen…');
+      const deadlineMs=new Date($('deadline').value).getTime();
+      const durationMinutes=Number($('duration').value);
+      preview=await Homey.api('POST','/preview',{deviceId,earliestMs:Date.now(),deadlineMs,durationMinutes});
+      $('result').classList.remove('hidden');
+      $('planTime').textContent=fmt(preview.best.start)+' → '+new Intl.DateTimeFormat('nl-NL',{hour:'2-digit',minute:'2-digit'}).format(new Date(preview.best.end));
+      $('planPrice').textContent=money(preview.best.averagePrice);
+      $('planInfo').textContent=preview.best.durationMinutes+' minuten · '+(preview.slots?.length||0)+' prijspunten bekeken';
+      $('save').disabled=false;
+      msg('Goedkoopste aaneengesloten tijdvak gevonden.');
+      syncWidgetHeight(false);
+    } catch(e) { msg(e.message||String(e),true); }
+  });
+
+  $('save').addEventListener('click',async()=>{
+    if ($('save').disabled) return;
+    if (!preview?.best) return;
+    try {
+      const deadlineMs=new Date($('deadline').value).getTime();
+      const plan=await Homey.api('POST','/plan',{deviceId,plan:{
+        startAt:preview.best.start,endAt:preview.best.end,deadlineAt:deadlineMs,
+        durationMinutes:preview.best.durationMinutes,averagePrice:preview.best.averagePrice,config:config()
+      }});
+      if (state) state.plan = plan;
+      showPlan(plan);
+      $('result').classList.add('hidden');
+      $('save').disabled = true;
+      $('cancel').classList.remove('hidden');
+      msg(state?.remoteControl === false
+        ? 'Slim wassen is gepland. ⚠ Remote Start staat nu uit; zet dit vóór de geplande start aan.'
+        : 'Slim wassen is gepland.');
+      syncWidgetHeight(false);
+      Homey.hapticFeedback?.();
+
+      // Geen volledige /state reload: die doet ook een ThinQ2 refresh en kan
+      // de widget blokkeren. Het /plan antwoord is al de actuele planning.
+      requestAnimationFrame(() => {
+        showPlan(plan);
+        $('cancel').classList.remove('hidden');
+      });
+    } catch(e) { msg(e.message||String(e),true); }
+  });
+
+  $('start').addEventListener('click',async()=>{
+    if ($('start').disabled) return;
+    $('start').disabled=true;
+    try {
+      msg('Startopdracht naar Homey sturen…');
+      await Homey.api('POST','/start-now',{deviceId,config:config()});
+      msg('Startopdracht geaccepteerd · LG wordt nu gestart…');
+    } catch(e) {
+      msg(e.message||String(e),true);
+      $('start').disabled=false;
+    }
+    setTimeout(()=>{ $('start').disabled=false; },12000);
+  });
+  $('wake').addEventListener('click',async()=>{
+    if ($('wake').disabled) return;
+    try { msg('Wasmachine wakker maken…'); await Homey.api('POST','/wake',{deviceId}); msg('Wake-up verzonden.'); }
+    catch(e) { msg(e.message||String(e),true); }
+  });
+  $('cancel').addEventListener('click',async()=>{
+    try {
+      const p=await Homey.api('DELETE','/plan?deviceId='+encodeURIComponent(deviceId),{});
+      if (state) state.plan = p;
+      showPlan(p);
+      $('cancel').classList.add('hidden');
+      msg('Planning geannuleerd.');
+      syncWidgetHeight(false);
+
+      requestAnimationFrame(() => showPlan(p));
+    }
+    catch(e) { msg(e.message||String(e),true); }
+  });
+
+  Homey.on('smart_wash_plan_changed', data => {
+    if (!data || String(data.deviceId)!==String(deviceId)) return;
+    const previousStart = state?.plan?.startAt ? Number(state.plan.startAt) : null;
+    if (state) state.plan = data.plan;
+    showPlan(data.plan);
+    if (
+      previousStart &&
+      data.plan?.status === 'scheduled' &&
+      Number(data.plan.startAt) !== previousStart
+    ) {
+      msg('Planning automatisch aangepast aan nieuwe energieprijzen.');
+    }
+    syncWidgetHeight(false);
+  });
+
+  Homey.on('smart_wash_live_status', data => {
+    if (!data || String(data.deviceId)!==String(deviceId)) return;
+    renderMachineStatus(data);
+    applyMachineSelections(data);
+    if (state) Object.assign(state, data);
+  });
+
+  Homey.on('smart_wash_start_result', data => {
+    if (!data || String(data.deviceId)!==String(deviceId)) return;
+    $('start').disabled=false;
+    msg(data.ok ? 'Wasmachine gestart.' : ('Start mislukt: ' + (data.message || 'onbekende fout')), !data.ok);
+    if (data.ok) {
+      setTimeout(() => load(), 1500);
+    }
+  });
+
+  load();
+  setInterval(refreshLiveStatus, 5000);
+}
+</script>
+</body>
+</html>

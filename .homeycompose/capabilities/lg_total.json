@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Total time",
+    "nl": "Totale tijd"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": false,
+  "icon": "/assets/capabilities/time.svg"
+}

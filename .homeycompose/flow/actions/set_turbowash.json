@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set TurboWash",
+    "nl": "Stel TurboWash in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "enabled",
+      "type": "checkbox",
+      "title": {
+        "en": "TurboWash on",
+        "nl": "TurboWash aan"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set TurboWash to [[enabled]]",
+    "nl": "Stel TurboWash in op [[enabled]]"
+  }
+}

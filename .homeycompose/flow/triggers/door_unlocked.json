@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Door unlocked",
+    "nl": "Deur ontgrendeld"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

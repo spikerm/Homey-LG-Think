@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Dump ThinQ2 courses to log",
+    "nl": "Schrijf ThinQ2 programma's naar log"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

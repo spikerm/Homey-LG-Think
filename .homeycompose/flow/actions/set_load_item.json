@@ -1,0 +1,55 @@
+{
+  "title": {
+    "en": "Set add-item option",
+    "nl": "Stel was toevoegen in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "value",
+      "type": "dropdown",
+      "title": {
+        "en": "Load item",
+        "nl": "Was toevoegen"
+      },
+      "values": [
+        {
+          "id": "LOADITEM_OFF",
+          "title": {
+            "en": "Off",
+            "nl": "Uit"
+          }
+        },
+        {
+          "id": "LOADITEM_1",
+          "title": {
+            "en": "Level 1",
+            "nl": "Niveau 1"
+          }
+        },
+        {
+          "id": "LOADITEM_2",
+          "title": {
+            "en": "Level 2",
+            "nl": "Niveau 2"
+          }
+        },
+        {
+          "id": "LOADITEM_3",
+          "title": {
+            "en": "Level 3",
+            "nl": "Niveau 3"
+          }
+        }
+      ]
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set add-item to [[value]]",
+    "nl": "Stel was toevoegen in op [[value]]"
+  }
+}

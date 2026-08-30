@@ -1,0 +1,118 @@
+{
+  "title": {
+    "en": "State is",
+    "nl": "Status is"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "state",
+      "type": "dropdown",
+      "title": {
+        "en": "State",
+        "nl": "Status"
+      },
+      "values": [
+        {
+          "id": "POWEROFF",
+          "title": {
+            "en": "Uit",
+            "nl": "Uit"
+          }
+        },
+        {
+          "id": "INITIAL",
+          "title": {
+            "en": "Gereed",
+            "nl": "Gereed"
+          }
+        },
+        {
+          "id": "PAUSE",
+          "title": {
+            "en": "Gepauzeerd",
+            "nl": "Gepauzeerd"
+          }
+        },
+        {
+          "id": "RESERVED",
+          "title": {
+            "en": "Uitgestelde start",
+            "nl": "Uitgestelde start"
+          }
+        },
+        {
+          "id": "DETECTING",
+          "title": {
+            "en": "Belading detecteren",
+            "nl": "Belading detecteren"
+          }
+        },
+        {
+          "id": "RUNNING",
+          "title": {
+            "en": "Wassen",
+            "nl": "Wassen"
+          }
+        },
+        {
+          "id": "RINSING",
+          "title": {
+            "en": "Spoelen",
+            "nl": "Spoelen"
+          }
+        },
+        {
+          "id": "SPINNING",
+          "title": {
+            "en": "Centrifugeren",
+            "nl": "Centrifugeren"
+          }
+        },
+        {
+          "id": "DRYING",
+          "title": {
+            "en": "Drogen",
+            "nl": "Drogen"
+          }
+        },
+        {
+          "id": "END",
+          "title": {
+            "en": "Klaar",
+            "nl": "Klaar"
+          }
+        },
+        {
+          "id": "COOLDOWN",
+          "title": {
+            "en": "Afkoelen",
+            "nl": "Afkoelen"
+          }
+        },
+        {
+          "id": "RINSEHOLD",
+          "title": {
+            "en": "Spoelstop",
+            "nl": "Spoelstop"
+          }
+        },
+        {
+          "id": "ERROR",
+          "title": {
+            "en": "Storing",
+            "nl": "Storing"
+          }
+        }
+      ]
+    }
+  ],
+  "titleFormatted": {
+    "en": "State is [[state]]",
+    "nl": "Status is [[state]]"
+  }
+}

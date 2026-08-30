@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Pause washer",
+    "nl": "Pauzeer wasmachine"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

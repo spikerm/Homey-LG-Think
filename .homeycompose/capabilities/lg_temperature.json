@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Temperature",
+    "nl": "Temperatuur"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": false,
+  "icon": "/assets/capabilities/temp.svg"
+}

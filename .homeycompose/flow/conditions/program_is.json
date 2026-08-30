@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Program is",
+    "nl": "Wasprogramma is"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "program",
+      "type": "autocomplete",
+      "title": {
+        "en": "Program",
+        "nl": "Wasprogramma"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Program is [[program]]",
+    "nl": "Programma is [[program]]"
+  }
+}

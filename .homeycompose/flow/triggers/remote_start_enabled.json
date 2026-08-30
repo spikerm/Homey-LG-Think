@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Remote Start enabled",
+    "nl": "Afstandsbediening ingeschakeld"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

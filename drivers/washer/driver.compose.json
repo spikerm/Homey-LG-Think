@@ -1,0 +1,65 @@
+{
+  "name": {
+    "en": "LG Washer",
+    "nl": "LG Wasmachine"
+  },
+  "class": "washer",
+  "capabilities": [
+    "lg_program_select",
+    "lg_temp_select",
+    "lg_spin_select",
+    "lg_rinse_select",
+    "lg_dry_select",
+    "lg_soil_select",
+    "lg_prewash_toggle",
+    "lg_turbowash_toggle",
+    "lg_steam_toggle",
+    "lg_medic_rinse_toggle",
+    "lg_eco_hybrid_toggle",
+    "lg_load_item_select",
+    "lg_delay_end_select",
+    "lg_start_button",
+    "lg_pause_button",
+    "lg_wakeup_button",
+    "lg_poweroff_button",
+    "lg_refresh_button",
+    "lg_state",
+    "lg_current_program",
+    "lg_remaining",
+    "lg_total",
+    "lg_temperature",
+    "lg_spin",
+    "lg_rinse",
+    "lg_dry_level",
+    "lg_remote_control",
+    "lg_operation_mode",
+    "lg_cycle_count",
+    "lg_thinq2_status",
+    "lg_course_count"
+  ],
+  "images": {
+    "small": "/drivers/washer/assets/images/small.png",
+    "large": "/drivers/washer/assets/images/large.png",
+    "xlarge": "/drivers/washer/assets/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "login",
+      "options": {
+        "logo": "pair.svg"
+      }
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices",
+        "prev": "login"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}

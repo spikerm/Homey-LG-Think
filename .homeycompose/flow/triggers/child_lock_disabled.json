@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Child lock disabled",
+    "nl": "Kinderslot uitgeschakeld"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    }
+  ]
+}

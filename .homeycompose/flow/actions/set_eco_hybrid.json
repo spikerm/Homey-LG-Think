@@ -1,0 +1,25 @@
+{
+  "title": {
+    "en": "Set Eco Hybrid",
+    "nl": "Stel Eco Hybrid in"
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=washer"
+    },
+    {
+      "name": "enabled",
+      "type": "checkbox",
+      "title": {
+        "en": "Eco Hybrid on",
+        "nl": "Eco Hybrid aan"
+      }
+    }
+  ],
+  "titleFormatted": {
+    "en": "Set Eco Hybrid to [[enabled]]",
+    "nl": "Stel Eco Hybrid in op [[enabled]]"
+  }
+}

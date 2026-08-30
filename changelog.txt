@@ -1,3 +1,10 @@
+0.7.3
+- Added the ThinQ Overview dashboard widget with live washer status and controls.
+- Added correct ThinQ2 door-lock handling with an unavailable state when LG does not report it.
+- Added readable program names and Homey Energy price display for automatically started plans.
+- Improved Smart Washing startup so widgets share cached ThinQ2 data and avoid unnecessary duplicate LG requests.
+- Kept active-cycle guards for Wake and Start commands.
+
 0.7.2
 - Prevent WMWakeup from being sent while a wash cycle is active.
 - Prevent duplicate Start commands from disturbing an active wash.

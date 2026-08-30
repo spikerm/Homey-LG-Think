@@ -1496,7 +1496,13 @@
         "lg_operation_mode",
         "lg_cycle_count",
         "lg_thinq2_status",
-        "lg_course_count"
+        "lg_course_count",
+        "lg_progress_percent",
+        "lg_remaining_minutes",
+        "lg_total_minutes",
+        "lg_learned_duration",
+        "lg_actual_cycle_duration",
+        "lg_planned_price"
       ],
       "images": {
         "small": "/drivers/washer/assets/images/small.png",
@@ -1621,6 +1627,25 @@
     }
   },
   "capabilities": {
+    "lg_actual_cycle_duration": {
+      "type": "number",
+      "title": {
+        "en": "Actual cycle duration",
+        "nl": "Werkelijke wasduur"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "min",
+        "nl": "min"
+      },
+      "min": 0,
+      "max": 600,
+      "decimals": 0,
+      "insights": true,
+      "icon": "/assets/capabilities/time.svg"
+    },
     "lg_course_count": {
       "type": "number",
       "title": {
@@ -1933,6 +1958,25 @@
       "insights": false,
       "icon": "/assets/capabilities/program.svg"
     },
+    "lg_learned_duration": {
+      "type": "number",
+      "title": {
+        "en": "Learned wash duration",
+        "nl": "Geleerde wasduur"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "min",
+        "nl": "min"
+      },
+      "min": 0,
+      "max": 600,
+      "decimals": 0,
+      "insights": true,
+      "icon": "/assets/capabilities/time.svg"
+    },
     "lg_load_item_select": {
       "type": "enum",
       "title": {
@@ -2010,6 +2054,25 @@
       "uiComponent": "button",
       "insights": false,
       "icon": "/assets/capabilities/status.svg"
+    },
+    "lg_planned_price": {
+      "type": "number",
+      "title": {
+        "en": "Planned energy price",
+        "nl": "Geplande energieprijs"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "€/kWh",
+        "nl": "€/kWh"
+      },
+      "min": -1,
+      "max": 5,
+      "decimals": 4,
+      "insights": true,
+      "icon": "/assets/capabilities/time.svg"
     },
     "lg_poweroff_button": {
       "type": "boolean",
@@ -2147,6 +2210,25 @@
         }
       ]
     },
+    "lg_progress_percent": {
+      "type": "number",
+      "title": {
+        "en": "Wash progress",
+        "nl": "Wasvoortgang"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "%",
+        "nl": "%"
+      },
+      "min": 0,
+      "max": 100,
+      "decimals": 0,
+      "insights": true,
+      "icon": "/assets/capabilities/time.svg"
+    },
     "lg_refresh_button": {
       "type": "boolean",
       "title": {
@@ -2169,6 +2251,25 @@
       "setable": false,
       "uiComponent": "sensor",
       "insights": false,
+      "icon": "/assets/capabilities/time.svg"
+    },
+    "lg_remaining_minutes": {
+      "type": "number",
+      "title": {
+        "en": "Remaining time",
+        "nl": "Resterende tijd"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "min",
+        "nl": "min"
+      },
+      "min": 0,
+      "max": 600,
+      "decimals": 0,
+      "insights": true,
       "icon": "/assets/capabilities/time.svg"
     },
     "lg_remote_control": {
@@ -2529,6 +2630,25 @@
       "setable": false,
       "uiComponent": "sensor",
       "insights": false,
+      "icon": "/assets/capabilities/time.svg"
+    },
+    "lg_total_minutes": {
+      "type": "number",
+      "title": {
+        "en": "Current LG duration",
+        "nl": "Actuele LG-duur"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "min",
+        "nl": "min"
+      },
+      "min": 0,
+      "max": 600,
+      "decimals": 0,
+      "insights": true,
       "icon": "/assets/capabilities/time.svg"
     },
     "lg_turbowash_toggle": {

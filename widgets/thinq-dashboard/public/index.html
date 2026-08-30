@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;width:100%;overflow-x:hidden}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .wrap{display:grid;gap:10px;width:100%}
+    .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .title{font-size:18px;font-weight:750}
+    .sub{font-size:11px;opacity:.65;margin-top:2px}
+    .pill{font-size:12px;padding:5px 9px;border-radius:999px;background:rgba(127,127,127,.14);white-space:nowrap}
+    .card{border:1px solid rgba(127,127,127,.2);border-radius:14px;padding:11px}
+    .main{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+    .status{font-size:20px;font-weight:750;line-height:1.2}
+    .remaining{font-size:13px;opacity:.72;margin-top:3px}
+    .time{font-size:28px;font-weight:750;letter-spacing:-1px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .metric{border:1px solid rgba(127,127,127,.16);border-radius:11px;padding:9px;min-width:0}
+    .k{font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.06em}
+    .v{font-size:13px;font-weight:650;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .plan{font-size:12px;line-height:1.45}
+    .buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+    button{border:0;border-radius:10px;padding:9px 6px;font-weight:650;cursor:pointer;background:rgba(127,127,127,.15);color:inherit}
+    button.danger{background:rgba(190,30,45,.14)}
+    button:disabled{opacity:.38;cursor:not-allowed;filter:grayscale(1)}
+    .msg{font-size:11px;min-height:15px;opacity:.75}
+    .error{color:#c62828}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body class="homey-widget">
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="title" id="deviceName">LG ThinQ</div>
+      <div class="sub">ThinQ Overzicht</div>
+    </div>
+    <div class="pill" id="remote">Remote —</div>
+  </div>
+
+  <div class="card main">
+    <div>
+      <div class="status" id="status">Laden…</div>
+      <div class="remaining" id="program">Status ophalen</div>
+    </div>
+    <div class="time" id="remaining">—</div>
+  </div>
+
+  <div class="grid">
+    <div class="metric"><div class="k">Temperatuur</div><div class="v" id="temp">—</div></div>
+    <div class="metric"><div class="k">Centrifugeren</div><div class="v" id="spin">—</div></div>
+    <div class="metric"><div class="k">Deur</div><div class="v" id="door">—</div></div>
+    <div class="metric"><div class="k">Kinderslot</div><div class="v" id="child">—</div></div>
+  </div>
+
+  <div id="plan" class="card plan hidden"></div>
+
+  <div class="buttons">
+    <button id="refresh">Ververs</button>
+    <button id="wake">Wakker</button>
+    <button id="pause">Pauze</button>
+    <button id="off" class="danger">Uit</button>
+  </div>
+  <div id="msg" class="msg"></div>
+</div>
+
+<script>
+function onHomeyReady(Homey) {
+  const $ = id => document.getElementById(id);
+  let deviceId = null;
+  let timer = null;
+  let ready = false;
+  let lastHeight = 0;
+
+  const labels = {
+    TEMP_COLD:'Koud',TEMP_20:'20 °C',TEMP_30:'30 °C',TEMP_40:'40 °C',TEMP_50:'50 °C',TEMP_60:'60 °C',TEMP_95:'95 °C',
+    SPIN_400:'400 rpm',SPIN_600:'600 rpm',SPIN_800:'800 rpm',SPIN_1000:'1000 rpm',SPIN_1200:'1200 rpm',SPIN_Max:'Maximum',SPIN_1400:'Maximum',
+    NOT_SELECTED:'—',NO_TEMP:'—',NO_SPIN:'Geen'
+  };
+  const label = v => labels[v] || (v ? String(v).replaceAll('_',' ') : '—');
+
+  function setMsg(text,error=false){ $('msg').textContent=text||''; $('msg').classList.toggle('error',!!error); }
+
+  function syncHeight(initial=false){
+    const h=Math.max(260,Math.ceil(document.querySelector('.wrap').getBoundingClientRect().height+2));
+    if(!initial && Math.abs(h-lastHeight)<2) return;
+    lastHeight=h;
+    try{
+      if(!ready){ready=true;Homey.ready({height:h});}
+      else if(Homey.setHeight) Homey.setHeight(h);
+    }catch(e){}
+  }
+
+  function formatPlan(plan){
+    if(!plan || !['scheduled','starting','started'].includes(plan.status)) return null;
+    const fmt=ms=>new Intl.DateTimeFormat('nl-NL',{weekday:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(ms));
+    if(plan.status==='scheduled') return '<strong>Gepland</strong> · start '+fmt(plan.startAt)+(plan.averagePrice!=null?' · € '+Number(plan.averagePrice).toFixed(4).replace('.',',')+'/kWh':'');
+    if(plan.status==='starting') return '<strong>Planning wordt gestart…</strong>';
+    return '<strong>Automatisch gestart</strong>';
+  }
+
+  function render(data){
+    $('deviceName').textContent=data.name||'LG ThinQ';
+    $('status').textContent=data.error && data.error!=='ERROR_NO' ? '⚠ '+data.error : (data.status||'Onbekend');
+    $('status').classList.toggle('error',!!(data.error && data.error!=='ERROR_NO'));
+    $('program').textContent=data.currentProgramName||data.currentProgramId||'Geen programma';
+    $('remaining').textContent=data.active && data.remaining && data.remaining!=='0:00' ? data.remaining : '—';
+    $('remote').textContent=data.remoteControl?'Remote ✓':'Remote ✕';
+    $('temp').textContent=label(data.liveOptions?.temp);
+    $('spin').textContent=label(data.liveOptions?.spin);
+    $('door').textContent=data.doorLocked?'Vergrendeld':'Ontgrendeld';
+    $('child').textContent=data.childLock?'Aan':'Uit';
+
+    $('pause').disabled=!data.active;
+    $('wake').disabled=data.active;
+    $('off').disabled=String(data.status||'').toLowerCase()==='uit';
+
+    const p=formatPlan(data.plan);
+    $('plan').classList.toggle('hidden',!p);
+    $('plan').innerHTML=p||'';
+    syncHeight(false);
+  }
+
+  async function load(full=false){
+    if(!deviceId) return;
+    try{
+      if(full) setMsg('LG ThinQ verversen…');
+      const path=full?'/refresh':'/overview?deviceId='+encodeURIComponent(deviceId);
+      const data=full
+        ? await Homey.api('POST',path,{deviceId})
+        : await Homey.api('GET',path,{});
+      render(data);
+      setMsg('');
+    }catch(e){ setMsg(e.message||String(e),true); }
+  }
+
+  async function action(path,confirmText){
+    if(confirmText && !confirm(confirmText)) return;
+    try{
+      setMsg('Opdracht uitvoeren…');
+      const data=await Homey.api('POST',path,{deviceId});
+      render(data);
+      setMsg('Opdracht uitgevoerd.');
+      setTimeout(()=>load(false),1800);
+    }catch(e){ setMsg(e.message||String(e),true); }
+  }
+
+  $('refresh').addEventListener('click',()=>load(true));
+  $('wake').addEventListener('click',()=>action('/wake'));
+  $('pause').addEventListener('click',()=>action('/pause'));
+  $('off').addEventListener('click',()=>action('/power-off','Wasmachine uitschakelen?'));
+
+  async function init(){
+    const ids=Homey.getDeviceIds();
+    deviceId=ids&&ids[0];
+    if(!deviceId){setMsg('Kies een LG ThinQ-apparaat in de widgetinstellingen.',true);syncHeight(true);return;}
+    await load(false);
+    syncHeight(true);
+    timer=setInterval(()=>load(false),5000);
+  }
+
+  window.addEventListener('beforeunload',()=>{if(timer)clearInterval(timer);});
+  init();
+}
+</script>
+</body>
+</html>

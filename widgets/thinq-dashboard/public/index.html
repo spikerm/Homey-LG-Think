@@ -78,6 +78,8 @@ function onHomeyReady(Homey) {
   const labels = {
     TEMP_COLD:'Koud',TEMP_20:'20 °C',TEMP_30:'30 °C',TEMP_40:'40 °C',TEMP_50:'50 °C',TEMP_60:'60 °C',TEMP_95:'95 °C',
     SPIN_400:'400 rpm',SPIN_600:'600 rpm',SPIN_800:'800 rpm',SPIN_1000:'1000 rpm',SPIN_1200:'1200 rpm',SPIN_Max:'Maximum',SPIN_1400:'Maximum',
+    TURBO59:'Turbo Wash 59',COTTON:'Katoen',EASYCARE:'Kreukherstellend',MIXEDFABRIC:'Gemengde was',SPEED14:'Snel 14',
+    TUB_CLEAN:'Trommelreiniging',WOOL:'Wol',DELICATE:'Fijne was',ALLERGYSPASTEAM:'Allergie / Stoom',DRYONLY:'Alleen drogen',WASHDRY:'Wassen + drogen',SPINONLY:'Alleen centrifugeren',
     NOT_SELECTED:'—',NO_TEMP:'—',NO_SPIN:'Geen'
   };
   const label = v => labels[v] || (v ? String(v).replaceAll('_',' ') : '—');
@@ -94,25 +96,38 @@ function onHomeyReady(Homey) {
     }catch(e){}
   }
 
+  function money(v){
+    if(!Number.isFinite(Number(v))) return null;
+    return '€ '+Number(v).toFixed(4).replace('.',',')+'/kWh';
+  }
+
   function formatPlan(plan){
     if(!plan || !['scheduled','starting','started'].includes(plan.status)) return null;
     const fmt=ms=>new Intl.DateTimeFormat('nl-NL',{weekday:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(ms));
-    if(plan.status==='scheduled') return '<strong>Gepland</strong> · start '+fmt(plan.startAt)+(plan.averagePrice!=null?' · € '+Number(plan.averagePrice).toFixed(4).replace('.',',')+'/kWh':'');
-    if(plan.status==='starting') return '<strong>Planning wordt gestart…</strong>';
-    return '<strong>Automatisch gestart</strong>';
+    const price=money(plan.averagePrice);
+    if(plan.status==='scheduled') return '<strong>Gepland</strong> · start '+fmt(plan.startAt)+(price?' · '+price:'');
+    if(plan.status==='starting') return '<strong>Planning wordt gestart…</strong>'+(price?' · '+price:'');
+    return '<strong>Automatisch gestart</strong>'+(price?' · '+price:'');
+  }
+
+  function lockText(value, locked, unlocked){
+    if(value===true) return locked;
+    if(value===false) return unlocked;
+    return 'Niet beschikbaar';
   }
 
   function render(data){
     $('deviceName').textContent=data.name||'LG ThinQ';
     $('status').textContent=data.error && data.error!=='ERROR_NO' ? '⚠ '+data.error : (data.status||'Onbekend');
     $('status').classList.toggle('error',!!(data.error && data.error!=='ERROR_NO'));
-    $('program').textContent=data.currentProgramName||data.currentProgramId||'Geen programma';
+    $('program').textContent=data.currentProgramName||label(data.currentProgramId)||'Geen programma';
     $('remaining').textContent=data.active && data.remaining && data.remaining!=='0:00' ? data.remaining : '—';
     $('remote').textContent=data.remoteControl?'Remote ✓':'Remote ✕';
     $('temp').textContent=label(data.liveOptions?.temp);
     $('spin').textContent=label(data.liveOptions?.spin);
-    $('door').textContent=data.doorLocked?'Vergrendeld':'Ontgrendeld';
-    $('child').textContent=data.childLock?'Aan':'Uit';
+    $('door').textContent=lockText(data.doorLocked,'Vergrendeld','Ontgrendeld');
+    $('door').title=data.doorLockRaw ? 'LG ThinQ2: '+data.doorLockRaw : 'LG levert momenteel geen deurstatus voor dit apparaat.';
+    $('child').textContent=lockText(data.childLock,'Aan','Uit');
 
     $('pause').disabled=!data.active;
     $('wake').disabled=data.active;

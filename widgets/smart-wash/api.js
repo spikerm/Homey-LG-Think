@@ -1,5 +1,10 @@
 'use strict';
 
+const {
+  recordFromLive,
+  applyLearnedDurations
+} = require('../../lib/smart-wash-duration');
+
 function device(homey, id) {
   if (!id) throw new Error('Geen wasmachine geselecteerd in de widget.');
   return homey.app.getWasherDevice(id);
@@ -15,18 +20,29 @@ async function getReadyWidgetState(d) {
   // the program and option lists empty. Give the device init a short moment to
   // finish before falling back to one explicit refresh.
   let state = d.getWidgetState();
-  if (Array.isArray(state?.programs) && state.programs.length) return state;
+  if (Array.isArray(state?.programs) && state.programs.length) {
+    const live = d.getWidgetLiveStatus();
+    await recordFromLive(d, live).catch(() => {});
+    return applyLearnedDurations(d, state);
+  }
 
   for (let i = 0; i < 6; i++) {
     await sleep(250);
     state = d.getWidgetState();
-    if (Array.isArray(state?.programs) && state.programs.length) return state;
+    if (Array.isArray(state?.programs) && state.programs.length) {
+      const live = d.getWidgetLiveStatus();
+      await recordFromLive(d, live).catch(() => {});
+      return applyLearnedDurations(d, state);
+    }
   }
 
   // Only refresh when the cache is still empty after ~1.5 seconds. This keeps
   // normal widget opens cache-only while still recovering from a startup race.
   await d.refreshThinQ2().catch(() => {});
-  return d.getWidgetState();
+  state = d.getWidgetState();
+  const live = d.getWidgetLiveStatus();
+  await recordFromLive(d, live).catch(() => {});
+  return applyLearnedDurations(d, state);
 }
 
 module.exports = {
@@ -37,7 +53,9 @@ module.exports = {
 
   async getLiveStatus({ homey, query }) {
     const d = device(homey, query.deviceId);
-    return d.getWidgetLiveStatus();
+    const live = d.getWidgetLiveStatus();
+    await recordFromLive(d, live).catch(() => {});
+    return live;
   },
 
   async previewPlan({ homey, body }) {
@@ -47,7 +65,7 @@ module.exports = {
       deadlineMs: body.deadlineMs,
       durationMinutes: body.durationMinutes
     });
-    return { ...result, state:d.getWidgetState() };
+    return { ...result, state:applyLearnedDurations(d, d.getWidgetState()) };
   },
 
   async savePlan({ homey, body }) {
@@ -89,6 +107,6 @@ module.exports = {
   async wake({ homey, body }) {
     const d = device(homey, body.deviceId);
     await d.wakeupWasher();
-    return d.getWidgetState();
+    return applyLearnedDurations(d, d.getWidgetState());
   }
 };

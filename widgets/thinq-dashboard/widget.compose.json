@@ -1,0 +1,40 @@
+{
+  "name": {
+    "en": "ThinQ Dashboard",
+    "nl": "ThinQ Overzicht"
+  },
+  "description": {
+    "en": "Live status and quick controls for your LG ThinQ appliance.",
+    "nl": "Live status en snelle bediening voor je LG ThinQ-apparaat."
+  },
+  "height": 330,
+  "devices": {
+    "type": "app",
+    "singular": true,
+    "filter": {
+      "class": "washer"
+    }
+  },
+  "api": {
+    "getOverview": {
+      "method": "GET",
+      "path": "/overview"
+    },
+    "refresh": {
+      "method": "POST",
+      "path": "/refresh"
+    },
+    "pause": {
+      "method": "POST",
+      "path": "/pause"
+    },
+    "powerOff": {
+      "method": "POST",
+      "path": "/power-off"
+    },
+    "wake": {
+      "method": "POST",
+      "path": "/wake"
+    }
+  }
+}

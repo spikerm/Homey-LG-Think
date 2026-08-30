@@ -8,7 +8,9 @@ function device(homey, id) {
 module.exports = {
   async getState({ homey, query }) {
     const d = device(homey, query.deviceId);
-    await d.refreshThinQ2().catch(() => {});
+    // Use the device cache here. The device itself already refreshes ThinQ2 on
+    // init and every 30 seconds. Triggering another ThinQ2 refresh whenever the
+    // widget opens caused several duplicate LG requests during app startup.
     return d.getWidgetState();
   },
 

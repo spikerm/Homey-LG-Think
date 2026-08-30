@@ -1,6 +1,6 @@
 'use strict';
 
-const { recordFromLive } = require('../../lib/smart-wash-duration');
+const { recordFromLive, getProgramLearning } = require('../../lib/smart-wash-duration');
 
 function device(homey, id) {
   if (!id) throw new Error('Geen LG ThinQ-apparaat geselecteerd in de widget.');
@@ -34,10 +34,13 @@ async function overview(d) {
   const programFromList = Array.isArray(state?.programs)
     ? state.programs.find(program => program?.id === currentProgramId)
     : null;
+  const learnedDuration = getProgramLearning(d, currentProgramId);
+  const plan = merged.plan || null;
+  const planDurationMinutes = Number(plan?.durationMinutes || learnedDuration?.averageMinutes || programFromList?.expectedDurationMinutes);
+  const expectedEndAt = plan?.startAt && Number.isFinite(planDurationMinutes)
+    ? Number(plan.startAt) + planDurationMinutes * 60 * 1000
+    : null;
 
-  // Important: an absent ThinQ2 doorLock field is UNKNOWN, not unlocked.
-  // The previous dashboard coerced undefined to false and therefore showed
-  // "Ontgrendeld" while the machine was running.
   const doorLocked = Object.prototype.hasOwnProperty.call(wd, 'doorLock')
     ? triState(wd.doorLock, 'DOOR_LOCK_ON', 'DOOR_LOCK_OFF')
     : null;
@@ -59,7 +62,10 @@ async function overview(d) {
     childLock,
     error: merged.error || null,
     liveOptions: merged.liveOptions || {},
-    plan: merged.plan || null,
+    learnedDuration,
+    expectedDurationMinutes: Number.isFinite(planDurationMinutes) ? Math.round(planDurationMinutes) : null,
+    expectedEndAt,
+    plan,
     updatedAt: Date.now()
   };
 }

@@ -61,6 +61,68 @@ function safeErrorMessage(err) {
     .join(' - ');
 }
 
+function enableTurbo59Drying(device) {
+  const courses = device?._courses;
+  const turbo = courses?.TURBO59;
+  if (!turbo) return false;
+
+  const turboFunctions = Array.isArray(turbo.function) ? turbo.function : [];
+  let turboDry = turboFunctions.find(fn => fn?.value === 'dryLevel');
+
+  // On this LG washer-dryer the front panel allows a dry level to be selected
+  // after choosing Turbo Wash 59. The downloaded course definition reports
+  // dryLevel as NOT_SELECTED, which is the default state rather than a real
+  // restriction. Reuse the machine's own dry-level choices from Wash+Dry (or
+  // Dry Only as fallback) so Homey offers the same combinations as the panel.
+  const donor = courses?.WASHDRY || courses?.DRYONLY;
+  const donorDry = (donor?.function || []).find(fn => fn?.value === 'dryLevel');
+  const donorOptions = Array.isArray(donorDry?.selectable)
+    ? donorDry.selectable.filter(Boolean)
+    : [];
+
+  if (!donorOptions.length) return false;
+
+  const options = [...new Set([
+    'NOT_SELECTED',
+    ...(Array.isArray(turboDry?.selectable) ? turboDry.selectable : []),
+    ...donorOptions
+  ])];
+
+  if (!turboDry) {
+    turboDry = {
+      value: 'dryLevel',
+      default: 'NOT_SELECTED',
+      selectable: options
+    };
+    turbo.function = [...turboFunctions, turboDry];
+  } else {
+    turboDry.default = turboDry.default || 'NOT_SELECTED';
+    turboDry.selectable = options;
+  }
+
+  device.log(`Turbo Wash 59: drogen beschikbaar gemaakt (${options.join(', ')}).`);
+  return true;
+}
+
+function patchTurbo59Drying(device) {
+  if (!device || device._turbo59DryPatchApplied) {
+    enableTurbo59Drying(device);
+    return;
+  }
+
+  device._turbo59DryPatchApplied = true;
+  enableTurbo59Drying(device);
+
+  if (typeof device.refreshThinQ2 === 'function') {
+    const originalRefreshThinQ2 = device.refreshThinQ2.bind(device);
+    device.refreshThinQ2 = async (...args) => {
+      const result = await originalRefreshThinQ2(...args);
+      enableTurbo59Drying(device);
+      return result;
+    };
+  }
+}
+
 class LGWasherDriver extends Homey.Driver {
   async onInit() {
     // Add the new Insights capabilities to already paired washers as well.
@@ -68,6 +130,7 @@ class LGWasherDriver extends Homey.Driver {
     this.homey.setTimeout(async () => {
       for (const device of this.getDevices()) {
         try {
+          patchTurbo59Drying(device);
           await ensureInsightsCapabilities(device);
           await recordFromLive(device, device.getWidgetLiveStatus()).catch(() => {});
           startInsightsRecorder(device);

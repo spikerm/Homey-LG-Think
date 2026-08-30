@@ -1,3 +1,10 @@
+0.7.4
+- Smart Washing now learns the real total duration LG reports after a program starts.
+- Stores one learned duration per wash cycle and keeps the last 5 cycles per program.
+- Uses the rolling average as the next expected program duration for Homey Energy planning.
+- Updates the current cycle sample when LG adjusts the total time after load sensing, without counting duplicate measurements.
+- Falls back to the existing model estimates until a real duration has been learned.
+
 0.7.3
 - Added the ThinQ Overview dashboard widget with live washer status and controls.
 - Added correct ThinQ2 door-lock handling with an unavailable state when LG does not report it.

@@ -25,5 +25,8 @@
   },
   "0.7.10": {
     "en": "pricing fallback added"
+  },
+  "0.7.11": {
+    "en": "Wake up command fixed added tibber and nord pool as price providers "
   }
 }

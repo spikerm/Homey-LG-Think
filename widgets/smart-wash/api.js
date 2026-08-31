@@ -70,7 +70,8 @@ function enrichLive(d, live) {
     ? Math.max(0, Math.min(100, Math.round(((totalMinutes - remainingMinutes) / totalMinutes) * 100)))
     : null;
   const programId = live?.currentProgramId || d._lastProgram || d.getStoreValue('selected_program_id') || null;
-  const learnedDuration = getProgramLearning(d, programId);
+  const dryLevel = live?.liveOptions?.dryLevel || d?._lastWd?.dryLevel || 'NOT_SELECTED';
+  const learnedDuration = getProgramLearning(d, programId, { dryLevel });
   const plan = d.getStoreValue('smart_wash_plan') || null;
   const actualCycleDuration = Number(d.getCapabilityValue('lg_actual_cycle_duration'));
 
@@ -83,11 +84,13 @@ function enrichLive(d, live) {
     recentDurations: learnedDuration?.samples?.slice(-5).reverse().map(sample => ({
       minutes: Number(sample.minutes),
       actualMinutes: Number.isFinite(Number(sample.actualMinutes)) ? Number(sample.actualMinutes) : null,
-      at: sample.at || null
+      at: sample.at || null,
+      dryLevel: sample.dryLevel || dryLevel
     })) || [],
     actualCycleDuration: Number.isFinite(actualCycleDuration) ? actualCycleDuration : null,
     planDurationMinutes: Number.isFinite(Number(plan?.durationMinutes)) ? Number(plan.durationMinutes) : null,
-    plannedAveragePrice: Number.isFinite(Number(plan?.averagePrice)) ? Number(plan.averagePrice) : null
+    plannedAveragePrice: Number.isFinite(Number(plan?.averagePrice)) ? Number(plan.averagePrice) : null,
+    plannedPriceProvider: plan?.priceProvider || null
   };
 }
 
@@ -172,9 +175,6 @@ module.exports = {
     if (!Number.isFinite(requestedStart) || requestedStart < minStart) {
       throw new Error('De gekozen starttijd is verlopen. Bereken het plan opnieuw; een planning start minimaal 5 minuten vooruit op een kwartiergrens.');
     }
-    // Dynamic replanning remains disabled until the device-level replanner uses
-    // this same provider resolver. This prevents an old Homey-only replan from
-    // overwriting a valid Tibber/SlimLaden plan.
     return d.setSmartWashPlan({ ...body.plan, autoReplan:false });
   },
 

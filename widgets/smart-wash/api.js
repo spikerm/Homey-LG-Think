@@ -33,6 +33,21 @@ function device(homey, id) {
   return homey.app.getWasherDevice(id);
 }
 
+// The device scheduler predates the multi-provider planner and calls these app
+// helpers for its 15-minute replan checks. Bridge those helpers to the same
+// planner used by the widget, so initial planning and automatic replanning use
+// identical Tibber/SlimLaden/Homey provider selection and the same future-only
+// quarter-hour rules.
+function installPlannerBridge(homey) {
+  const app = homey?.app;
+  if (!app || app._smartWashPlannerBridgeInstalled) return;
+  app.calculateCheapestWashWindow = options => smartPlanner.calculate(app, options);
+  app._averagePriceForWindow = (slots, startMs, endMs) =>
+    smartPlanner.averagePriceForWindow(slots, startMs, endMs);
+  app._smartWashPlannerBridgeInstalled = true;
+  app.log('Slim Wassen dynamisch herplannen actief: zelfde prijsprovider als de planner, vast 15 min voor start.');
+}
+
 function ensureCourseOption(course, key, options, fallbackDefault = null) {
   if (!course || !Array.isArray(course.function)) return;
   let fn = course.function.find(x => x?.value === key);
@@ -124,11 +139,13 @@ async function getReadyWidgetState(d) {
 
 module.exports = {
   async getState({ homey, query }) {
+    installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, query.deviceId));
     return getReadyWidgetState(d);
   },
 
   async getLiveStatus({ homey, query }) {
+    installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, query.deviceId));
     const live = d.getWidgetLiveStatus();
     await recordFromLive(d, live).catch(() => {});
@@ -136,6 +153,7 @@ module.exports = {
   },
 
   async previewPlan({ homey, body }) {
+    installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, body.deviceId));
     let result;
     try {
@@ -169,21 +187,24 @@ module.exports = {
   },
 
   async savePlan({ homey, body }) {
+    installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, body.deviceId));
     const minStart = smartPlanner.minimumPlanningStart();
     const requestedStart = Number(body?.plan?.startAt);
     if (!Number.isFinite(requestedStart) || requestedStart < minStart) {
       throw new Error('De gekozen starttijd is verlopen. Bereken het plan opnieuw; een planning start minimaal 5 minuten vooruit op een kwartiergrens.');
     }
-    return d.setSmartWashPlan({ ...body.plan, autoReplan:false });
+    return d.setSmartWashPlan({ ...body.plan, autoReplan:true });
   },
 
   async cancelPlan({ homey, query }) {
+    installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, query.deviceId));
     return d.cancelSmartWashPlan();
   },
 
   async startNow({ homey, body }) {
+    installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, body.deviceId));
     if (d.getCapabilityValue('lg_remote_control') !== true) {
       throw new Error('Remote Start is niet actief. Zet Remote Start eerst op de wasmachine aan.');
@@ -210,6 +231,7 @@ module.exports = {
   },
 
   async wake({ homey, body }) {
+    installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, body.deviceId));
     await d.wakeupWasher();
     return applyLearnedDurations(d, d.getWidgetState());

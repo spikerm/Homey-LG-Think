@@ -28,5 +28,8 @@
   },
   "0.7.11": {
     "en": "Wake up command fixed added tibber and nord pool as price providers "
+  },
+  "0.7.12": {
+    "en": "widget updates"
   }
 }

@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LG ThinQ - Energieprijzen</title>
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+  <style>
+    body { font-family: sans-serif; padding: 18px; max-width: 760px; }
+    .row { margin: 0 0 18px; }
+    label { display:block; font-weight:600; margin-bottom:6px; }
+    select,input { width:100%; box-sizing:border-box; padding:9px; }
+    .hint { opacity:.75; font-size:.92em; margin-top:5px; }
+    .provider { display:none; padding:14px; border:1px solid #ddd; border-radius:8px; margin-bottom:18px; }
+    button { padding:10px 16px; }
+    #status { margin-left:10px; }
+  </style>
+</head>
+<body>
+  <h1>Energieprijzen</h1>
+  <p>Kies welke prijsbron Slim Wassen gebruikt. Automatisch probeert beschikbare bronnen in volgorde en plant nooit met een onvolledig prijsvenster.</p>
+
+  <div class="row">
+    <label for="provider">Prijsbron</label>
+    <select id="provider">
+      <option value="auto">Automatisch</option>
+      <option value="homey-energy">Homey Energy</option>
+      <option value="tibber">Tibber API</option>
+      <option value="slimladen">SlimLaden</option>
+      <option value="nordpool">Nord Pool Market Data API</option>
+    </select>
+  </div>
+
+  <div id="tibberBox" class="provider">
+    <div class="row">
+      <label for="tibberToken">Tibber API-token</label>
+      <input id="tibberToken" type="password" autocomplete="off" placeholder="Tibber personal access token">
+      <div class="hint">Wordt lokaal in Homey opgeslagen en niet naar LG gestuurd of gelogd.</div>
+    </div>
+    <div class="row">
+      <label for="tibberHomeId">Tibber Home ID (optioneel)</label>
+      <input id="tibberHomeId" type="text" placeholder="Leeg = eerste Home">
+    </div>
+  </div>
+
+  <div id="slimladenBox" class="provider">
+    <div class="row">
+      <label for="slimladenUrl">SlimLaden prijs-URL</label>
+      <input id="slimladenUrl" type="text" placeholder="http://homey-ip:8778/api/prices">
+      <div class="hint">Zo hoeft het Homey IP-adres niet meer hardcoded in de LG-app te staan.</div>
+    </div>
+  </div>
+
+  <div id="nordpoolBox" class="provider">
+    <div class="row">
+      <label for="nordpoolToken">Nord Pool API-token</label>
+      <input id="nordpoolToken" type="password" autocomplete="off" placeholder="Market Data API token">
+    </div>
+    <div class="row">
+      <label for="nordpoolApiUrl">Nord Pool Market Data API URL</label>
+      <input id="nordpoolApiUrl" type="text" placeholder="URL uit Nord Pool Developer Portal">
+    </div>
+    <div class="row">
+      <label for="nordpoolArea">Biedzone</label>
+      <input id="nordpoolArea" type="text" value="NL" placeholder="NL">
+      <div class="hint">Nord Pool vereist klant/API-toegang. We gebruiken geen web-scraping.</div>
+    </div>
+  </div>
+
+  <button id="save">Opslaan</button><span id="status"></span>
+
+  <script>
+    const ids = ['provider','tibberToken','tibberHomeId','slimladenUrl','nordpoolToken','nordpoolApiUrl','nordpoolArea'];
+    const settingKeys = {
+      provider:'energy_price_provider',
+      tibberToken:'tibber_api_token',
+      tibberHomeId:'tibber_home_id',
+      slimladenUrl:'slimladen_prices_url',
+      nordpoolToken:'nordpool_api_token',
+      nordpoolApiUrl:'nordpool_api_url',
+      nordpoolArea:'nordpool_area'
+    };
+
+    function showProvider() {
+      const p = document.getElementById('provider').value;
+      document.getElementById('tibberBox').style.display = (p === 'tibber' || p === 'auto') ? 'block' : 'none';
+      document.getElementById('slimladenBox').style.display = (p === 'slimladen' || p === 'auto') ? 'block' : 'none';
+      document.getElementById('nordpoolBox').style.display = p === 'nordpool' ? 'block' : 'none';
+    }
+
+    function load() {
+      let left = ids.length;
+      ids.forEach(id => {
+        Homey.get(settingKeys[id], (err, value) => {
+          if (!err && value !== null && value !== undefined && value !== '') document.getElementById(id).value = value;
+          if (--left === 0) showProvider();
+        });
+      });
+    }
+
+    document.getElementById('provider').addEventListener('change', showProvider);
+    document.getElementById('save').addEventListener('click', () => {
+      const status = document.getElementById('status');
+      status.textContent = 'Opslaan...';
+      let left = ids.length;
+      let failed = false;
+      ids.forEach(id => {
+        Homey.set(settingKeys[id], document.getElementById(id).value || '', err => {
+          if (err) failed = true;
+          if (--left === 0) status.textContent = failed ? 'Opslaan mislukt' : 'Opgeslagen';
+        });
+      });
+    });
+
+    load();
+  </script>
+</body>
+</html>

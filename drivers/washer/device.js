@@ -416,15 +416,10 @@ class LGWasherDevice extends Homey.Device {
     if (current === 'RUNNING' && this._lastState !== 'RUNNING') {
       await this._startedTrigger.trigger(this).catch(this.error);
     }
-    if (current === 'RINSING') {
-      await this._rinsingStartedTrigger.trigger(this).catch(this.error);
-    }
-    if (current === 'SPINNING') {
-      await this._spinningStartedTrigger.trigger(this).catch(this.error);
-    }
-    if (current === 'DRYING') {
-      await this._dryingStartedTrigger.trigger(this).catch(this.error);
-    }
+    if (current === 'RINSING') await this._rinsingStartedTrigger.trigger(this).catch(this.error);
+    if (current === 'SPINNING') await this._spinningStartedTrigger.trigger(this).catch(this.error);
+    if (current === 'DRYING') await this._dryingStartedTrigger.trigger(this).catch(this.error);
+
     if (current === 'END' && this._lastState !== 'END') {
       await this._finishedTrigger.trigger(this, {
         program: this.getCapabilityValue('lg_current_program') || 'Onbekend',
@@ -437,6 +432,52 @@ class LGWasherDevice extends Homey.Device {
         message: `LG wasmachine storing: ${this._lastError || 'Onbekende fout'}.`
       }).catch(this.error);
     }
+
+    const plan = this.getStoreValue('smart_wash_plan');
+    if (plan && ['starting','started','running'].includes(plan.status)) {
+      const activeStates = [
+        'DETECTING','RUNNING','RINSING','SPINNING','DRYING',
+        'COOLDOWN','COOL_DOWN','RINSEHOLD','RINSE_HOLD',
+        'WASH_REFRESHING','REFRESHING','STEAMSOFTENING','STEAM_SOFTENING'
+      ];
+      let nextPlan = null;
+
+      if (activeStates.includes(current)) {
+        if (plan.status !== 'running' || plan.lastWasherState !== current) {
+          nextPlan = {
+            ...plan,
+            status: 'running',
+            runningAt: plan.runningAt || Date.now(),
+            lastWasherState: current,
+            lastError: null
+          };
+        }
+      } else if (current === 'END') {
+        const completedAt = Date.now();
+        const actualStart = Number(plan.runningAt || plan.startedAt || plan.startingAt);
+        nextPlan = { ...plan, status:'completed', completedAt, lastWasherState:current, lastError:null };
+        if (Number.isFinite(actualStart) && completedAt > actualStart) {
+          nextPlan.actualDurationMinutes = Math.max(1, Math.round((completedAt - actualStart) / 60000));
+        }
+      } else if (current === 'ERROR') {
+        nextPlan = {
+          ...plan, status:'failed', failedAt:Date.now(), lastWasherState:current,
+          lastError: this._lastError && this._lastError !== 'ERROR_NO'
+            ? String(this._lastError)
+            : 'De wasmachine heeft een storing gemeld.'
+        };
+      }
+
+      if (nextPlan) {
+        await this.setStoreValue('smart_wash_plan', nextPlan);
+        this.log(`Slim Wassen planstatus: ${plan.status} -> ${nextPlan.status} (${current}).`);
+        this.homey.api.realtime('smart_wash_plan_changed', {
+          deviceId: typeof this.getId === 'function' ? this.getId() : this.getData().id,
+          plan: nextPlan
+        }).catch(() => {});
+      }
+    }
+
     this._lastState = current;
   }
 

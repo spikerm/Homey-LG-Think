@@ -102,7 +102,49 @@ function onHomeyReady(Homey){
   function config(){const options={};for(const id of ['temp','spin','rinse','dryLevel','soilWash']){const el=$(id);if(!el.disabled&&el.value)options[id]=el.value}for(const [id,on,off] of [['preWash','PREWASH_ON','PREWASH_OFF'],['turboWash','TURBOWASH_ON','TURBOWASH_OFF'],['steam','STEAM_ON','STEAM_OFF'],['medicRinse','MEDICRINSE_ON','MEDICRINSE_OFF'],['ecoHybrid','ECOHYBRID_ON','ECOHYBRID_OFF']]){const el=$(id);if(!el.disabled)options[id]=el.checked?on:off}return{programId:$('program').value,options}}
   function planProgramName(plan){const id=plan?.config?.programId;return id?(state?.programs?.find(p=>p.id===id)?.name||label(id)):null}
   function planOptionSummary(plan){const o=plan?.config?.options||{},parts=[];if(o.temp&&!['NO_TEMP','NOT_SELECTED'].includes(o.temp))parts.push(label(o.temp));if(o.spin)parts.push(label(o.spin));if(o.rinse&&!['NO_RINSE','NOT_SELECTED'].includes(o.rinse))parts.push('Spoelen: '+label(o.rinse));if(o.dryLevel&&!['NO_DRYLEVEL','NOT_SELECTED'].includes(o.dryLevel))parts.push('Drogen: '+label(o.dryLevel));if(o.soilWash&&!['NO_SOILWASH','NOT_SELECTED'].includes(o.soilWash))parts.push('Intensiteit: '+label(o.soilWash));const en=[];if(o.preWash==='PREWASH_ON')en.push('Voorwas');if(o.turboWash==='TURBOWASH_ON')en.push('TurboWash');if(o.steam==='STEAM_ON')en.push('Stoom');if(o.medicRinse==='MEDICRINSE_ON')en.push('Hygiënisch');if(o.ecoHybrid==='ECOHYBRID_ON')en.push('Eco Hybrid');if(en.length)parts.push(en.join(', '));return parts.join(' · ')}
-  function showPlan(plan){const scheduled=plan?.status==='scheduled';$('start').textContent=scheduled?'Plan nu starten':'Nu starten';$('start').title=scheduled?'Start de opgeslagen planning direct, met de instellingen uit het plan.':'Start de instellingen die hierboven nu geselecteerd zijn.';if(!plan||!['scheduled','starting','started','failed'].includes(plan.status)){$('activePlan').classList.add('hidden');$('cancel').classList.add('hidden');return}const names={scheduled:'Gepland',starting:'Wordt gestart',started:'Gestart',failed:'Mislukt'},program=planProgramName(plan),opts=planOptionSummary(plan);$('activePlan').classList.remove('hidden');$('activePlan').innerHTML='<strong>'+names[plan.status]+'</strong><br>'+(program?'<strong>Programma: '+program+'</strong><br>':'')+(opts?'<span class="small">'+opts+'</span><br>':'')+(Number.isFinite(Number(plan.durationMinutes))?'Duur: '+Number(plan.durationMinutes)+' min <span class="small">(planning gebruikt deze duur)</span><br>':'')+(plan.startAt?'Start: '+fmt(plan.startAt)+'<br>':'')+(plan.deadlineAt?'Uiterlijk klaar: '+fmt(plan.deadlineAt)+'<br>':'')+(plan.priceProvider?'Prijsbron: <strong>'+providerLabel(plan.priceProvider)+'</strong><br>':'')+(Number.isFinite(Number(plan.averagePrice))?'Gemiddelde prijs: '+money(plan.averagePrice)+'/kWh<br>':'')+(plan.lastError?'<span style="color:#c62828">'+plan.lastError+'</span>':'');$('cancel').classList.toggle('hidden',plan.status!=='scheduled');syncHeight(false)}
+  function showPlan(plan){
+    const scheduled=plan?.status==='scheduled';
+    $('start').textContent=scheduled?'Plan nu starten':'Nu starten';
+    $('start').title=scheduled?'Start de opgeslagen planning direct, met de instellingen uit het plan.':'Start de instellingen die hierboven nu geselecteerd zijn.';
+
+    const visibleStatuses=['scheduled','starting','started','running','completed','failed'];
+    if(!plan||!visibleStatuses.includes(plan.status)){
+      $('activePlan').classList.add('hidden');
+      $('cancel').classList.add('hidden');
+      return;
+    }
+
+    const names={
+      scheduled:'Gepland',
+      starting:'Wordt gestart',
+      started:'Gestart',
+      running:'Bezig',
+      completed:'Gereed',
+      failed:'Mislukt'
+    };
+    const program=planProgramName(plan),opts=planOptionSummary(plan);
+    const actualStart=plan.runningAt||plan.startedAt||null;
+    const actualDuration=Number(plan.actualDurationMinutes);
+    let html='<strong>'+names[plan.status]+'</strong><br>';
+    if(program)html+='<strong>Programma: '+program+'</strong><br>';
+    if(opts)html+='<span class="small">'+opts+'</span><br>';
+    if(Number.isFinite(Number(plan.durationMinutes)))html+='Geplande duur: '+Number(plan.durationMinutes)+' min<br>';
+    if(plan.status==='scheduled'&&plan.startAt)html+='Geplande start: '+fmt(plan.startAt)+'<br>';
+    if(['starting','started','running','completed','failed'].includes(plan.status)&&actualStart)html+='Werkelijke start: '+fmt(actualStart)+'<br>';
+    else if(plan.startAt)html+='Start: '+fmt(plan.startAt)+'<br>';
+    if(plan.status==='completed'&&plan.completedAt)html+='Gereed: '+fmt(plan.completedAt)+'<br>';
+    if(plan.status==='completed'&&Number.isFinite(actualDuration))html+='<strong>Werkelijke duur: '+Math.round(actualDuration)+' min</strong><br>';
+    if(plan.status==='failed'&&plan.failedAt)html+='Mislukt: '+fmt(plan.failedAt)+'<br>';
+    if(plan.deadlineAt)html+='Uiterlijk klaar: '+fmt(plan.deadlineAt)+'<br>';
+    if(plan.priceProvider)html+='Prijsbron: <strong>'+providerLabel(plan.priceProvider)+'</strong><br>';
+    if(Number.isFinite(Number(plan.averagePrice)))html+='Gemiddelde prijs: '+money(plan.averagePrice)+'/kWh<br>';
+    if(plan.lastError)html+='<span style="color:#c62828">'+plan.lastError+'</span>';
+
+    $('activePlan').classList.remove('hidden');
+    $('activePlan').innerHTML=html;
+    $('cancel').classList.toggle('hidden',plan.status!=='scheduled');
+    syncHeight(false);
+  }
 
   async function refreshLive(){if(!deviceId)return;try{const live=await Homey.api('GET','/live?deviceId='+encodeURIComponent(deviceId),{});renderMachineStatus(live);applyMachineSelections(live);if(state)Object.assign(state,live)}catch(e){}}
   async function load(){const ids=Homey.getDeviceIds();deviceId=ids&&ids[0];if(!deviceId){msg('Kies eerst een LG-wasmachine in de widgetinstellingen.',true);syncHeight(true);return}try{state=await Homey.api('GET','/state?deviceId='+encodeURIComponent(deviceId),{});$('deviceName').textContent=state.name||'LG ThinQ';$('program').innerHTML='';for(const p of state.programs||[]){const o=document.createElement('option');o.value=p.id;o.textContent=p.name;$('program').appendChild(o)}if(state.selected?.programId&&[...$('program').options].some(o=>o.value===state.selected.programId))$('program').value=state.selected.programId;refreshOptions();applySelectedConfig(state.selected);applyMachineSelections(state);updateExpectedDuration();renderMachineStatus(state);showPlan(state.plan);msg('')}catch(e){msg(e.message||String(e),true)}syncHeight(true)}

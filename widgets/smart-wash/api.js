@@ -12,20 +12,9 @@ const smartPlanner = require('../../lib/energy-prices/planner');
 
 const TURBO59_DRY_OPTIONS = ['NOT_SELECTED', 'DRYLEVEL_NORMAL'];
 const FULL_DRY_OPTIONS = [
-  'NOT_SELECTED',
-  'NO_DRYLEVEL',
-  'DRYLEVEL_NORMAL',
-  'DRYLEVEL_30',
-  'DRYLEVEL_60',
-  'DRYLEVEL_90',
-  'DRYLEVEL_120',
-  'DRYLEVEL_150',
-  'DRYLEVEL_ECO',
-  'DRYLEVEL_VERY',
-  'DRYLEVEL_IRON',
-  'DRYLEVEL_LOW',
-  'DRYLEVEL_ENERGY',
-  'DRYLEVEL_SPEED'
+  'NOT_SELECTED','NO_DRYLEVEL','DRYLEVEL_NORMAL','DRYLEVEL_30','DRYLEVEL_60',
+  'DRYLEVEL_90','DRYLEVEL_120','DRYLEVEL_150','DRYLEVEL_ECO','DRYLEVEL_VERY',
+  'DRYLEVEL_IRON','DRYLEVEL_LOW','DRYLEVEL_ENERGY','DRYLEVEL_SPEED'
 ];
 
 function device(homey, id) {
@@ -33,17 +22,11 @@ function device(homey, id) {
   return homey.app.getWasherDevice(id);
 }
 
-// The device scheduler predates the multi-provider planner and calls these app
-// helpers for its 15-minute replan checks. Bridge those helpers to the same
-// planner used by the widget, so initial planning and automatic replanning use
-// identical Tibber/SlimLaden/Homey provider selection and the same future-only
-// quarter-hour rules.
 function installPlannerBridge(homey) {
   const app = homey?.app;
   if (!app || app._smartWashPlannerBridgeInstalled) return;
   app.calculateCheapestWashWindow = options => smartPlanner.calculate(app, options);
-  app._averagePriceForWindow = (slots, startMs, endMs) =>
-    smartPlanner.averagePriceForWindow(slots, startMs, endMs);
+  app._averagePriceForWindow = (slots, startMs, endMs) => smartPlanner.averagePriceForWindow(slots, startMs, endMs);
   app._smartWashPlannerBridgeInstalled = true;
   app.log('Slim Wassen dynamisch herplannen actief: zelfde prijsprovider als de planner, vast 15 min voor start.');
 }
@@ -78,34 +61,83 @@ async function prepareDevice(d) {
 
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
+function liveStateKey(live) {
+  return String(live?.status || live?.state || '').trim().toUpperCase();
+}
+
+function isActiveLiveState(live) {
+  const s = liveStateKey(live);
+  return ['RUNNING','WASHING','WASSEN','RINSING','SPOELEN','SPINNING','CENTRIFUGEREN','DRYING','DROGEN','DETECTING','BELADING DETECTEREN','PAUSE','GEPAUZEERD','COOLDOWN','AFKOELEN'].some(x => s.includes(x));
+}
+
+function isCompletedLiveState(live) {
+  const s = liveStateKey(live);
+  return s === 'END' || s === 'KLAAR' || s.includes('KLAAR');
+}
+
+function isFailedLiveState(live) {
+  const s = liveStateKey(live);
+  const err = live?.error && String(live.error).toUpperCase() !== 'ERROR_NO' ? String(live.error) : null;
+  return s === 'ERROR' || s.includes('STORING') || Boolean(err);
+}
+
+async function syncPlanStatus(d, live) {
+  const plan = d.getStoreValue('smart_wash_plan');
+  if (!plan || !['starting','started','running'].includes(plan.status)) return plan || null;
+
+  let next = null;
+  const now = Date.now();
+  if (isFailedLiveState(live)) {
+    next = { ...plan, status:'failed', failedAt:now, lastError:String(live?.error || 'Wasmachine meldt een storing.') };
+  } else if (isCompletedLiveState(live)) {
+    const actual = Number(d.getCapabilityValue('lg_actual_cycle_duration'));
+    next = {
+      ...plan,
+      status:'completed',
+      completedAt:now,
+      actualDurationMinutes:Number.isFinite(actual) && actual > 0 ? actual : null,
+      lastError:null
+    };
+  } else if (isActiveLiveState(live) && plan.status !== 'running') {
+    next = { ...plan, status:'running', runningAt:plan.runningAt || now, lastError:null };
+  }
+
+  if (!next) return plan;
+  await d.setStoreValue('smart_wash_plan', next);
+  d.log(`Slim Wassen planstatus: ${plan.status} -> ${next.status}.`);
+  d.homey.api.realtime('smart_wash_plan_changed', {
+    deviceId: typeof d.getId === 'function' ? d.getId() : d.getData().id,
+    plan: next
+  }).catch(() => {});
+  return next;
+}
+
 function enrichLive(d, live) {
   const totalMinutes = parseDurationMinutes(live?.total || d.getCapabilityValue('lg_total'));
   const remainingMinutes = parseDurationMinutes(live?.remaining || d.getCapabilityValue('lg_remaining'));
   const progressPercent = Number.isFinite(totalMinutes) && totalMinutes > 0 && Number.isFinite(remainingMinutes)
-    ? Math.max(0, Math.min(100, Math.round(((totalMinutes - remainingMinutes) / totalMinutes) * 100)))
-    : null;
+    ? Math.max(0, Math.min(100, Math.round(((totalMinutes - remainingMinutes) / totalMinutes) * 100))) : null;
   const programId = live?.currentProgramId || d._lastProgram || d.getStoreValue('selected_program_id') || null;
   const dryLevel = live?.liveOptions?.dryLevel || d?._lastWd?.dryLevel || 'NOT_SELECTED';
   const learnedDuration = getProgramLearning(d, programId, { dryLevel });
   const plan = d.getStoreValue('smart_wash_plan') || null;
   const actualCycleDuration = Number(d.getCapabilityValue('lg_actual_cycle_duration'));
-
   return {
     ...live,
-    totalMinutes: Number.isFinite(totalMinutes) ? totalMinutes : null,
-    remainingMinutes: Number.isFinite(remainingMinutes) ? remainingMinutes : null,
+    totalMinutes:Number.isFinite(totalMinutes) ? totalMinutes : null,
+    remainingMinutes:Number.isFinite(remainingMinutes) ? remainingMinutes : null,
     progressPercent,
     learnedDuration,
-    recentDurations: learnedDuration?.samples?.slice(-5).reverse().map(sample => ({
-      minutes: Number(sample.minutes),
-      actualMinutes: Number.isFinite(Number(sample.actualMinutes)) ? Number(sample.actualMinutes) : null,
-      at: sample.at || null,
-      dryLevel: sample.dryLevel || dryLevel
+    recentDurations:learnedDuration?.samples?.slice(-5).reverse().map(sample => ({
+      minutes:Number(sample.minutes),
+      actualMinutes:Number.isFinite(Number(sample.actualMinutes)) ? Number(sample.actualMinutes) : null,
+      at:sample.at || null,
+      dryLevel:sample.dryLevel || dryLevel
     })) || [],
-    actualCycleDuration: Number.isFinite(actualCycleDuration) ? actualCycleDuration : null,
-    planDurationMinutes: Number.isFinite(Number(plan?.durationMinutes)) ? Number(plan.durationMinutes) : null,
-    plannedAveragePrice: Number.isFinite(Number(plan?.averagePrice)) ? Number(plan.averagePrice) : null,
-    plannedPriceProvider: plan?.priceProvider || null
+    actualCycleDuration:Number.isFinite(actualCycleDuration) ? actualCycleDuration : null,
+    planDurationMinutes:Number.isFinite(Number(plan?.durationMinutes)) ? Number(plan.durationMinutes) : null,
+    plannedAveragePrice:Number.isFinite(Number(plan?.averagePrice)) ? Number(plan.averagePrice) : null,
+    plannedPriceProvider:plan?.priceProvider || null
   };
 }
 
@@ -115,25 +147,26 @@ async function getReadyWidgetState(d) {
   if (Array.isArray(state?.programs) && state.programs.length) {
     const live = d.getWidgetLiveStatus();
     await recordFromLive(d, live).catch(() => {});
+    await syncPlanStatus(d, live).catch(() => {});
+    state = d.getWidgetState();
     return { ...applyLearnedDurations(d, state), ...enrichLive(d, live) };
   }
-
   for (let i = 0; i < 6; i++) {
-    await sleep(250);
-    patchWasherDryOptions(d);
-    state = d.getWidgetState();
+    await sleep(250); patchWasherDryOptions(d); state = d.getWidgetState();
     if (Array.isArray(state?.programs) && state.programs.length) {
       const live = d.getWidgetLiveStatus();
       await recordFromLive(d, live).catch(() => {});
+      await syncPlanStatus(d, live).catch(() => {});
+      state = d.getWidgetState();
       return { ...applyLearnedDurations(d, state), ...enrichLive(d, live) };
     }
   }
-
   await d.refreshThinQ2().catch(() => {});
-  patchWasherDryOptions(d);
-  state = d.getWidgetState();
+  patchWasherDryOptions(d); state = d.getWidgetState();
   const live = d.getWidgetLiveStatus();
   await recordFromLive(d, live).catch(() => {});
+  await syncPlanStatus(d, live).catch(() => {});
+  state = d.getWidgetState();
   return { ...applyLearnedDurations(d, state), ...enrichLive(d, live) };
 }
 
@@ -143,93 +176,62 @@ module.exports = {
     const d = await prepareDevice(device(homey, query.deviceId));
     return getReadyWidgetState(d);
   },
-
   async getLiveStatus({ homey, query }) {
     installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, query.deviceId));
     const live = d.getWidgetLiveStatus();
     await recordFromLive(d, live).catch(() => {});
+    await syncPlanStatus(d, live).catch(() => {});
     return enrichLive(d, live);
   },
-
   async previewPlan({ homey, body }) {
     installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, body.deviceId));
     let result;
     try {
-      result = await smartPlanner.calculate(homey.app, {
-        earliestMs: body.earliestMs,
-        deadlineMs: body.deadlineMs,
-        durationMinutes: body.durationMinutes
-      });
+      result = await smartPlanner.calculate(homey.app, { earliestMs:body.earliestMs, deadlineMs:body.deadlineMs, durationMinutes:body.durationMinutes });
     } catch (err) {
-      homey.app.error(`Slim Wassen preview mislukt: ${err?.message || err}`);
-      throw err;
+      homey.app.error(`Slim Wassen preview mislukt: ${err?.message || err}`); throw err;
     }
-
     const durationMs = Number(result?.best?.durationMinutes || body.durationMinutes) * 60000;
     const directStart = Number(result?.earliestStart) || smartPlanner.minimumPlanningStart(body.earliestMs);
     const directAveragePrice = smartPlanner.averagePriceForWindow(result.slots, directStart, directStart + durationMs);
     const smartAveragePrice = Number(result?.best?.averagePrice);
-    const savingsPerKwh = Number.isFinite(directAveragePrice) && Number.isFinite(smartAveragePrice)
-      ? Math.max(0, directAveragePrice - smartAveragePrice)
-      : null;
-
+    const savingsPerKwh = Number.isFinite(directAveragePrice) && Number.isFinite(smartAveragePrice) ? Math.max(0, directAveragePrice - smartAveragePrice) : null;
     return {
-      ...result,
-      directAveragePrice,
-      savingsPerKwh,
-      savingsPercent: Number.isFinite(savingsPerKwh) && directAveragePrice > 0
-        ? Math.round((savingsPerKwh / directAveragePrice) * 100)
-        : null,
-      state: applyLearnedDurations(d, d.getWidgetState())
+      ...result, directAveragePrice, savingsPerKwh,
+      savingsPercent:Number.isFinite(savingsPerKwh) && directAveragePrice > 0 ? Math.round((savingsPerKwh / directAveragePrice) * 100) : null,
+      state:applyLearnedDurations(d, d.getWidgetState())
     };
   },
-
   async savePlan({ homey, body }) {
     installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, body.deviceId));
     const minStart = smartPlanner.minimumPlanningStart();
     const requestedStart = Number(body?.plan?.startAt);
-    if (!Number.isFinite(requestedStart) || requestedStart < minStart) {
-      throw new Error('De gekozen starttijd is verlopen. Bereken het plan opnieuw; een planning start minimaal 5 minuten vooruit op een kwartiergrens.');
-    }
+    if (!Number.isFinite(requestedStart) || requestedStart < minStart) throw new Error('De gekozen starttijd is verlopen. Bereken het plan opnieuw; een planning start minimaal 5 minuten vooruit op een kwartiergrens.');
     return d.setSmartWashPlan({ ...body.plan, autoReplan:true });
   },
-
   async cancelPlan({ homey, query }) {
     installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, query.deviceId));
     return d.cancelSmartWashPlan();
   },
-
   async startNow({ homey, body }) {
     installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, body.deviceId));
-    if (d.getCapabilityValue('lg_remote_control') !== true) {
-      throw new Error('Remote Start is niet actief. Zet Remote Start eerst op de wasmachine aan.');
-    }
+    if (d.getCapabilityValue('lg_remote_control') !== true) throw new Error('Remote Start is niet actief. Zet Remote Start eerst op de wasmachine aan.');
     homey.setTimeout(async () => {
       try {
         const result = await d.startWasherSingleFlight(body.config || {}, 'smart-wash-widget');
-        homey.api.realtime('smart_wash_start_result', {
-          deviceId: body.deviceId,
-          ok: result.accepted || result.duplicate,
-          duplicate: !!result.duplicate,
-          message: result.message
-        }).catch(() => {});
+        homey.api.realtime('smart_wash_start_result', { deviceId:body.deviceId, ok:result.accepted || result.duplicate, duplicate:!!result.duplicate, message:result.message }).catch(() => {});
       } catch (err) {
         d.error('Widget direct starten mislukt:', err);
-        homey.api.realtime('smart_wash_start_result', {
-          deviceId: body.deviceId,
-          ok:false,
-          message:String(err?.message || err)
-        }).catch(() => {});
+        homey.api.realtime('smart_wash_start_result', { deviceId:body.deviceId, ok:false, message:String(err?.message || err) }).catch(() => {});
       }
     }, 10);
     return { accepted:true, message:'Startopdracht geaccepteerd' };
   },
-
   async wake({ homey, body }) {
     installPlannerBridge(homey);
     const d = await prepareDevice(device(homey, body.deviceId));

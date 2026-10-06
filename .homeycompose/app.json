@@ -29,5 +29,13 @@
     "homey:manager:api"
   ],
   "homepage": "https://github.com/spikerm/Homey-LG-Think",
-  "support": "https://github.com/spikerm/Homey-LG-Think/issues"
+  "support": "https://github.com/spikerm/Homey-LG-Think/issues",
+  "api": {
+    "post": [
+      {
+        "path": "/test-push",
+        "fn": "testPush"
+      }
+    ]
+  }
 }

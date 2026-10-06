@@ -13,6 +13,15 @@ class LGThinQApp extends Homey.App {
     action('refresh_washer').registerRunListener(async args => { await args.device.refreshNow(); await args.device.refreshThinQ2(); return true; });
     action('dump_thinq2_courses').registerRunListener(async args => { await args.device.dumpThinQ2Courses(); return true; });
 
+    // Generic notification action. For a true phone push to a selected Homey user,
+    // combine an LG event trigger with Homey's own push/mobile notification action.
+    action('send_lg_notification').registerRunListener(async args => {
+      const message = String(args.message || '').trim();
+      if (!message) throw new Error('Vul een meldingstekst in.');
+      await this.homey.notifications.createNotification({ excerpt: 'LG ThinQ • ' + message });
+      return true;
+    });
+
     // Program selection card: program only. Temperature, spin, rinse, dry etc.
     // each have their own Flow card below.
     const selectProgram = action('select_program');

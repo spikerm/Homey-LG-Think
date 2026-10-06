@@ -75,6 +75,24 @@ class LGThinQApp extends Homey.App {
     this.log('Alle beschikbare LG washer Flow-kaarten geregistreerd');
   }
 
+  async notifyLG(event, message) {
+    const enabled = this.homey.settings.get('push_enabled') === true;
+    if (!enabled) return false;
+    const defaults = { planned:false, replanned:false, starting:true, running:false, completed:true, failed:true, remote_missing:true, error:true };
+    const key = 'push_' + event;
+    const configured = this.homey.settings.get(key);
+    const allowed = configured === null || configured === undefined ? defaults[event] === true : configured === true;
+    if (!allowed) return false;
+    try {
+      await this.homey.notifications.createNotification({ excerpt: String(message || 'LG ThinQ melding') });
+      this.log(`Pushmelding [${event}]: ${message}`);
+      return true;
+    } catch (err) {
+      this.error(`Pushmelding [${event}] mislukt: ${err?.message || err}`);
+      return false;
+    }
+  }
+
   _priceNumber(value) {
     if (typeof value === 'number' && Number.isFinite(value)) return value;
     if (typeof value === 'string') {

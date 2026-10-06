@@ -1,10 +1,12 @@
 'use strict';
 
 const Homey = require('homey');
+const CortanaClient = require('./lib/cortana-client');
 
 class LGThinQApp extends Homey.App {
   async onInit() {
     this.log(`LG ThinQ v${this.homey?.manifest?.version || 'onbekend'} gestart`);
+    this.cortana = new CortanaClient(this.homey, this);
 
     const action = id => this.homey.flow.getActionCard(id);
     const condition = id => this.homey.flow.getConditionCard(id);
@@ -77,21 +79,28 @@ class LGThinQApp extends Homey.App {
   }
 
   async notifyLG(event, message) {
-    const enabled = this.homey.settings.get('push_enabled') === true;
-    if (!enabled) return false;
+    // Homey Timeline and CORTANA are intentionally independent. A CORTANA
+    // failure must never interrupt washer control, Smart Wash or Flow triggers.
     const defaults = { planned:false, replanned:false, starting:true, running:false, completed:true, failed:true, remote_missing:true, error:true };
-    const key = 'push_' + event;
-    const configured = this.homey.settings.get(key);
+    const configured = this.homey.settings.get('push_' + event);
     const allowed = configured === null || configured === undefined ? defaults[event] === true : configured === true;
-    if (!allowed) return false;
-    try {
-      await this.homey.notifications.createNotification({ excerpt: String(message || 'LG ThinQ melding') });
-      this.log(`Pushmelding [${event}]: ${message}`);
-      return true;
-    } catch (err) {
-      this.error(`Pushmelding [${event}] mislukt: ${err?.message || err}`);
-      return false;
+
+    const tasks = [];
+
+    if (this.homey.settings.get('push_enabled') === true && allowed) {
+      tasks.push(
+        this.homey.notifications.createNotification({ excerpt: String(message || 'LG ThinQ melding') })
+          .then(() => this.log(`Pushmelding [${event}] verzonden.`))
+          .catch(err => this.error(`Pushmelding [${event}] mislukt: ${err?.message || err}`))
+      );
     }
+
+    if (this.cortana) {
+      tasks.push(this.cortana.notify(event, message));
+    }
+
+    await Promise.allSettled(tasks);
+    return tasks.length > 0;
   }
 
   _priceNumber(value) {

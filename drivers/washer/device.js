@@ -1326,6 +1326,22 @@ class LGWasherDevice extends Homey.Device {
     await this.setStoreValue('smart_wash_plan', stored);
     this.log('Slim Wassen gepland:', JSON.stringify(stored));
     this.homey.app.notifyLG?.('planned', `LG ThinQ • ${this.getName()} — ${this._smartWashProgramName(stored)} gepland voor ${this._formatSmartWashTime(stored.startAt)}.`).catch(() => {});
+
+    // Warn immediately when a plan is created while Remote Start is disabled.
+    // The plan remains valid: the user can still enable Remote Start before startAt.
+    const remoteActiveAtPlanning = this.getCapabilityValue('lg_remote_control') === true;
+    if (!remoteActiveAtPlanning) {
+      const remoteMessage = `LG ThinQ • ${this.getName()} — Was is gepland voor ${this._formatSmartWashTime(stored.startAt)}, maar Remote Start is niet actief. Schakel Remote Start op de wasmachine in vóór de geplande start.`;
+      this.homey.app.notifyLG?.('remote_missing', remoteMessage).catch(() => {});
+      await this._triggerSmartWash(this._smartWashRemoteMissingTrigger, {
+        program: this._smartWashProgramName(stored),
+        start_time: this._formatSmartWashTime(stored.startAt),
+        deadline: this._formatSmartWashTime(stored.deadlineAt),
+        message: remoteMessage
+      });
+      this.log('Slim Wassen: Remote Start is bij het plannen niet actief; waarschuwing direct verzonden.');
+    }
+
     await this._triggerSmartWash(this._smartWashPlannedTrigger, {
       program: this._smartWashProgramName(stored),
       start_time: this._formatSmartWashTime(stored.startAt),

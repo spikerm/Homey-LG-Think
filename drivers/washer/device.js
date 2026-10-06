@@ -421,12 +421,14 @@ class LGWasherDevice extends Homey.Device {
     if (current === 'DRYING') await this._dryingStartedTrigger.trigger(this).catch(this.error);
 
     if (current === 'END' && this._lastState !== 'END') {
+      this.homey.app.notifyLG?.('completed', `LG ThinQ • ${this.getName()} — ${this.getCapabilityValue('lg_current_program') || 'Wasprogramma'} is gereed.`).catch(() => {});
       await this._finishedTrigger.trigger(this, {
         program: this.getCapabilityValue('lg_current_program') || 'Onbekend',
         message: `LG wasprogramma klaar: ${this.getCapabilityValue('lg_current_program') || 'Onbekend'}.`
       }).catch(this.error);
     }
     if (current === 'ERROR' && this._lastState !== 'ERROR') {
+      this.homey.app.notifyLG?.('error', `LG ThinQ • ${this.getName()} — Storing: ${this._lastError || 'Onbekende fout'}.`).catch(() => {});
       await this._errorTrigger.trigger(this, {
         error: this._lastError || 'Onbekende fout',
         message: `LG wasmachine storing: ${this._lastError || 'Onbekende fout'}.`
@@ -535,6 +537,7 @@ class LGWasherDevice extends Homey.Device {
       await card.trigger(this).catch(this.error);
     }
     if (errorNow !== 'ERROR_NO' && errorNow !== this._lastError) {
+      this.homey.app.notifyLG?.('error', `LG ThinQ • ${this.getName()} — Storing: ${errorNow || 'Onbekende fout'}.`).catch(() => {});
       await this._errorTrigger.trigger(this, {
         error: errorNow || 'Onbekende fout',
         message: `LG wasmachine storing: ${errorNow || 'Onbekende fout'}.`

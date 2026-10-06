@@ -1447,6 +1447,7 @@ class LGWasherDevice extends Homey.Device {
     plan = this.getStoreValue('smart_wash_plan');
     if (!plan || plan.status !== 'scheduled') return false;
     if (Date.now() < Number(plan.startAt)) return false;
+    if (Number(plan.nextRetryAt || 0) > Date.now()) return false;
 
     // Before an automatic start, Remote Start must still be active.
     // Keep the plan scheduled and retry on the next planner tick while there is
@@ -1498,8 +1499,13 @@ class LGWasherDevice extends Homey.Device {
       return false;
     }
 
-    const starting = { ...plan, status:'starting', startingAt:Date.now(), lastError:null, remoteBlockedAt:null };
+    const starting = { ...plan, status:'starting', startingAt:Date.now(), lastError:null, remoteBlockedAt:null, startAttempt:Number(plan.startAttempt || 0) + 1 };
     await this.setStoreValue('smart_wash_plan', starting);
+    this.log(`Slim Wassen startpoging ${starting.startAttempt}: startprocedure begonnen.`);
+    this.homey.api.realtime('smart_wash_plan_changed', {
+      deviceId: typeof this.getId === 'function' ? this.getId() : this.getData().id,
+      plan: starting
+    }).catch(() => {});
     try {
       // Same guarded start path as the widget's Nu starten button.
       const result = await this.startWasherSingleFlight(plan.config, 'smart-wash-planner');
@@ -1524,14 +1530,39 @@ class LGWasherDevice extends Homey.Device {
       }).catch(() => {});
       return true;
     } catch (err) {
+      const errorMessage = safeErrorMessage(err);
+      const status = Number(err?.status || err?.response?.status || 0);
+      const transient = status >= 500 && status < 600;
+      const attempts = Number(starting.startAttempt || 1);
+      const canStillFinish = !Number.isFinite(Number(starting.deadlineAt)) || (Date.now() + durationMs <= Number(starting.deadlineAt));
+
+      // A temporary LG cloud 5xx must not destroy the plan. Put it back in the
+      // scheduler so the 30-second planner tick can retry, with a bounded count.
+      if (transient && attempts < 3 && canStillFinish) {
+        const retry = {
+          ...starting,
+          status:'scheduled',
+          lastError:`Tijdelijke LG-cloudfout (${errorMessage}); nieuwe startpoging volgt automatisch.`,
+          lastStartErrorAt:Date.now(),
+          nextRetryAt:Date.now() + 30000
+        };
+        await this.setStoreValue('smart_wash_plan', retry);
+        this.log(`Slim Wassen startpoging ${attempts} tijdelijk mislukt: ${errorMessage}. Nieuwe poging bij volgende plannercontrole.`);
+        this.homey.api.realtime('smart_wash_plan_changed', {
+          deviceId: typeof this.getId === 'function' ? this.getId() : this.getData().id,
+          plan: retry
+        }).catch(() => {});
+        return false;
+      }
+
       const failed = {
         ...starting,
         status:'failed',
         failedAt:Date.now(),
-        lastError:String(err?.message || err)
+        lastError:errorMessage
       };
       await this.setStoreValue('smart_wash_plan', failed);
-      this.error('Slim Wassen automatisch starten mislukt:', err);
+      this.error(`Slim Wassen automatisch starten mislukt: ${errorMessage}`);
       await this._triggerSmartWash(this._smartWashStartFailedTrigger, {
         program: this._smartWashProgramName(failed),
         error: failed.lastError,

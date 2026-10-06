@@ -31,5 +31,8 @@
   },
   "0.7.12": {
     "en": "widget updates"
+  },
+  "0.7.13": {
+    "en": "better connection control and push notifications"
   }
 }

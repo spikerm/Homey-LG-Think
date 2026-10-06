@@ -52,5 +52,8 @@
   },
   "0.7.19": {
     "en": "error 400 fix"
+  },
+  "0.7.21": {
+    "en": "added cortana push notifications"
   }
 }

@@ -62,7 +62,7 @@
     <div class="hint">Voor meldingen aan één specifieke Homey-gebruiker kun je de bestaande LG ThinQ Flow-triggers combineren met Homey's eigen notificatiekaart; de Apps SDK ondersteunt bij createNotification geen ontvanger/userId.</div>
   </div>
 
-  <button id="save" type="button">Opslaan</button><span id="status"></span>
+  <button id="save" type="button">Opslaan</button> <button id="testPush" type="button">Testmelding versturen</button><span id="status"></span>
 
   <script>
     function onHomeyReady(Homey) {
@@ -108,6 +108,20 @@
       });
 
       document.getElementById('provider').addEventListener('change', showProvider);
+      document.getElementById('testPush').addEventListener('click', () => {
+        const status = document.getElementById('status');
+        const button = document.getElementById('testPush');
+        status.textContent = 'Testmelding versturen...';
+        button.disabled = true;
+        Homey.api('POST', '/test-push', {}, (err, result) => {
+          button.disabled = false;
+          if (err) {
+            status.textContent = 'Testmelding mislukt: ' + (err.message || err);
+            return;
+          }
+          status.textContent = result?.message || 'Testmelding verzonden';
+        });
+      });
       document.getElementById('save').addEventListener('click', () => {
         const status = document.getElementById('status');
         status.textContent = 'Opslaan...';

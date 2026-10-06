@@ -16,5 +16,13 @@ module.exports = {
       homey.app.error('LG ThinQ test-pushmelding mislukt:', message);
       throw new Error('Testmelding mislukt: ' + message);
     }
+  },
+  async testCortana({ homey }) {
+    try {
+      const result = await homey.app.cortana.test();
+      return { ok: true, message: result?.message || 'CORTANA test verzonden' };
+    } catch (err) {
+      throw new Error('CORTANA test mislukt: ' + String(err?.message || err || 'Onbekende fout'));
+    }
   }
 };

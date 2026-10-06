@@ -764,7 +764,17 @@ class LGWasherDevice extends Homey.Device {
     } catch (err) {
       const status = err?.status || err?.response?.status || err?.statusCode || 'ERR';
       const body = err?.payload || err?.response?.data || err?.body || err?.message;
-      this.error(`[ThinQ2] ${command} HTTP ${status}: ${typeof body === 'string' ? body : JSON.stringify(body)}`);
+      const resultCode =
+        err?.payload?.resultCode ||
+        err?.response?.data?.resultCode ||
+        err?.body?.resultCode ||
+        null;
+      // Preserve the failed LG command without retaining raw Axios request
+      // objects/tokens. The planner can then distinguish a transient ThinQ
+      // control rejection from a permanent configuration error.
+      err.thinqCommand = command;
+      err.thinqResultCode = resultCode ? String(resultCode) : null;
+      this.error(`[ThinQ2] ${command} HTTP ${status}${resultCode ? ` resultCode=${resultCode}` : ''}: ${typeof body === 'string' ? body : JSON.stringify(body)}`);
       throw err;
     }
   }
@@ -1540,7 +1550,18 @@ class LGWasherDevice extends Homey.Device {
     } catch (err) {
       const errorMessage = safeErrorMessage(err);
       const status = Number(err?.status || err?.response?.status || 0);
-      const transient = status >= 500 && status < 600;
+      const command = String(err?.thinqCommand || 'ThinQ2-control');
+      const resultCode = String(
+        err?.thinqResultCode ||
+        err?.payload?.resultCode ||
+        err?.response?.data?.resultCode ||
+        ''
+      );
+      // LG resultCode 0111 can be a temporary control-sync rejection while
+      // the washer/cloud state is still settling. Retry the complete guarded
+      // sequence; never skip wake/Remote check/WMDownload.
+      const transientControl0111 = status === 400 && resultCode === '0111';
+      const transient = (status >= 500 && status < 600) || transientControl0111;
       const attempts = Number(starting.startAttempt || 1);
       const canStillFinish = !Number.isFinite(Number(starting.deadlineAt)) || (Date.now() + durationMs <= Number(starting.deadlineAt));
 
@@ -1550,12 +1571,12 @@ class LGWasherDevice extends Homey.Device {
         const retry = {
           ...starting,
           status:'scheduled',
-          lastError:`Tijdelijke LG-cloudfout (${errorMessage}); nieuwe startpoging volgt automatisch.`,
+          lastError:`Tijdelijke LG-fout bij ${command}${resultCode ? ` (${resultCode})` : ''}: ${errorMessage}; nieuwe startpoging volgt automatisch.`,
           lastStartErrorAt:Date.now(),
           nextRetryAt:Date.now() + 30000
         };
         await this.setStoreValue('smart_wash_plan', retry);
-        this.log(`Slim Wassen startpoging ${attempts} tijdelijk mislukt: ${errorMessage}. Nieuwe poging bij volgende plannercontrole.`);
+        this.log(`Slim Wassen startpoging ${attempts} tijdelijk mislukt bij ${command}${resultCode ? ` (${resultCode})` : ''}: ${errorMessage}. Nieuwe volledige, beveiligde poging volgt automatisch.`);
         this.homey.api.realtime('smart_wash_plan_changed', {
           deviceId: typeof this.getId === 'function' ? this.getId() : this.getData().id,
           plan: retry
@@ -1567,7 +1588,7 @@ class LGWasherDevice extends Homey.Device {
         ...starting,
         status:'failed',
         failedAt:Date.now(),
-        lastError:errorMessage
+        lastError:`${command}${resultCode ? ` (${resultCode})` : ''}: ${errorMessage}`
       };
       await this.setStoreValue('smart_wash_plan', failed);
       this.homey.app.notifyLG?.('failed', `LG ThinQ • ${this.getName()} — Start mislukt: ${errorMessage}`).catch(() => {});

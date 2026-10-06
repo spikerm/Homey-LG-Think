@@ -46,16 +46,36 @@
     <div class="row"><label for="nordpoolArea">Biedzone</label><input id="nordpoolArea" type="text" placeholder="NL"><div class="hint">Nord Pool vereist klant/API-toegang. We gebruiken geen web-scraping.</div></div>
   </div>
 
+  <hr style="margin:28px 0">
+  <h1>Pushmeldingen</h1>
+  <p>LG ThinQ kan Homey-meldingen maken. Kies hieronder welke gebeurtenissen een melding geven. Wie pushmeldingen van deze Homey ontvangt wordt door Homey zelf bepaald.</p>
+  <div class="row"><label><input id="pushEnabled" type="checkbox" style="width:auto"> Pushmeldingen inschakelen</label></div>
+  <div class="provider" style="display:block">
+    <label><input id="pushPlanned" type="checkbox" style="width:auto"> Planning gemaakt</label><br>
+    <label><input id="pushReplanned" type="checkbox" style="width:auto"> Planning gewijzigd</label><br>
+    <label><input id="pushStarting" type="checkbox" style="width:auto"> Wordt gestart</label><br>
+    <label><input id="pushRunning" type="checkbox" style="width:auto"> Bezig</label><br>
+    <label><input id="pushCompleted" type="checkbox" style="width:auto"> Gereed</label><br>
+    <label><input id="pushFailed" type="checkbox" style="width:auto"> Start mislukt</label><br>
+    <label><input id="pushRemoteMissing" type="checkbox" style="width:auto"> Remote Start niet actief</label><br>
+    <label><input id="pushError" type="checkbox" style="width:auto"> LG-storing</label>
+    <div class="hint">Voor meldingen aan één specifieke Homey-gebruiker kun je de bestaande LG ThinQ Flow-triggers combineren met Homey's eigen notificatiekaart; de Apps SDK ondersteunt bij createNotification geen ontvanger/userId.</div>
+  </div>
+
   <button id="save" type="button">Opslaan</button><span id="status"></span>
 
   <script>
     function onHomeyReady(Homey) {
-      const ids = ['provider','tibberToken','tibberHomeId','slimladenUrl','nordpoolToken','nordpoolApiUrl','nordpoolArea'];
+      const ids = ['provider','tibberToken','tibberHomeId','slimladenUrl','nordpoolToken','nordpoolApiUrl','nordpoolArea','pushEnabled','pushPlanned','pushReplanned','pushStarting','pushRunning','pushCompleted','pushFailed','pushRemoteMissing','pushError'];
       const settingKeys = {
         provider:'energy_price_provider', tibberToken:'tibber_api_token', tibberHomeId:'tibber_home_id',
         slimladenUrl:'slimladen_prices_url', nordpoolToken:'nordpool_api_token',
-        nordpoolApiUrl:'nordpool_api_url', nordpoolArea:'nordpool_area'
+        nordpoolApiUrl:'nordpool_api_url', nordpoolArea:'nordpool_area',
+        pushEnabled:'push_enabled', pushPlanned:'push_planned', pushReplanned:'push_replanned',
+        pushStarting:'push_starting', pushRunning:'push_running', pushCompleted:'push_completed',
+        pushFailed:'push_failed', pushRemoteMissing:'push_remote_missing', pushError:'push_error'
       };
+      const checkboxIds = new Set(['pushEnabled','pushPlanned','pushReplanned','pushStarting','pushRunning','pushCompleted','pushFailed','pushRemoteMissing','pushError']);
 
       function showProvider() {
         const p = document.getElementById('provider').value;
@@ -67,10 +87,20 @@
       let pending = ids.length;
       ids.forEach(id => {
         Homey.get(settingKeys[id], (err, value) => {
-          if (!err && value !== null && value !== undefined && value !== '') document.getElementById(id).value = value;
+          if (!err && value !== null && value !== undefined && value !== '') {
+            if (checkboxIds.has(id)) document.getElementById(id).checked = value === true;
+            else document.getElementById(id).value = value;
+          }
           if (--pending === 0) {
             if (!document.getElementById('provider').value) document.getElementById('provider').value = 'auto';
             if (!document.getElementById('nordpoolArea').value) document.getElementById('nordpoolArea').value = 'NL';
+            if (document.getElementById('pushStarting').checked === false && document.getElementById('pushCompleted').checked === false && document.getElementById('pushFailed').checked === false && document.getElementById('pushRemoteMissing').checked === false && document.getElementById('pushError').checked === false) {
+              document.getElementById('pushStarting').checked = true;
+              document.getElementById('pushCompleted').checked = true;
+              document.getElementById('pushFailed').checked = true;
+              document.getElementById('pushRemoteMissing').checked = true;
+              document.getElementById('pushError').checked = true;
+            }
             showProvider();
             Homey.ready();
           }
@@ -84,7 +114,8 @@
         let left = ids.length;
         let failed = false;
         ids.forEach(id => {
-          Homey.set(settingKeys[id], document.getElementById(id).value || '', err => {
+          const el = document.getElementById(id);
+          Homey.set(settingKeys[id], checkboxIds.has(id) ? el.checked : (el.value || ''), err => {
             if (err) failed = true;
             if (--left === 0) status.textContent = failed ? 'Opslaan mislukt' : 'Opgeslagen';
           });

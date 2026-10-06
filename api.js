@@ -3,11 +3,14 @@
 module.exports = {
   async testPush({ homey }) {
     try {
-      await homey.notifications.createNotification({
+      if (!homey.notifications || typeof homey.notifications.createNotification !== 'function') {
+        throw new Error('Homey ManagerNotifications is niet beschikbaar.');
+      }
+      const result = await homey.notifications.createNotification({
         excerpt: 'LG ThinQ • Testmelding — Pushmeldingen werken correct op deze Homey.'
       });
-      homey.app.log('LG ThinQ test-pushmelding verzonden.');
-      return { ok: true, message: 'Testmelding verzonden' };
+      homey.app.log('LG ThinQ test-notificatie aangemaakt:', JSON.stringify(result || {}));
+      return { ok: true, message: 'Homey-notificatie aangemaakt' };
     } catch (err) {
       const message = String(err?.message || err || 'Onbekende fout');
       homey.app.error('LG ThinQ test-pushmelding mislukt:', message);

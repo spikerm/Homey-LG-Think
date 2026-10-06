@@ -31,14 +31,9 @@
   "homepage": "https://github.com/spikerm/Homey-LG-Think",
   "support": "https://github.com/spikerm/Homey-LG-Think/issues",
   "api": {
-    "get": [],
-    "post": [
-      {
-        "path": "/test-push",
-        "fn": "testPush"
-      }
-    ],
-    "put": [],
-    "delete": []
+    "testPush": {
+      "method": "POST",
+      "path": "/test-push"
+    }
   }
 }

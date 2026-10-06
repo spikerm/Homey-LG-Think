@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rexm.lgthinq",
-  "version": "0.7.18",
+  "version": "0.7.19",
   "compatibility": ">=12.3.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -933,31 +933,6 @@
           "nl": "Selecteer wasprogramma [[program]]"
         },
         "id": "select_program"
-      },
-      {
-        "title": {
-          "en": "Send LG ThinQ notification",
-          "nl": "Stuur LG ThinQ melding"
-        },
-        "titleFormatted": {
-          "en": "Send LG ThinQ notification: [[message]]",
-          "nl": "Stuur LG ThinQ melding: [[message]]"
-        },
-        "args": [
-          {
-            "name": "message",
-            "type": "text",
-            "title": {
-              "en": "Message",
-              "nl": "Bericht"
-            },
-            "placeholder": {
-              "en": "The washer is ready",
-              "nl": "De wasmachine is klaar"
-            }
-          }
-        ],
-        "id": "send_lg_notification"
       },
       {
         "title": {

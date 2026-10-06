@@ -1312,6 +1312,7 @@ class LGWasherDevice extends Homey.Device {
     }
     await this.setStoreValue('smart_wash_plan', stored);
     this.log('Slim Wassen gepland:', JSON.stringify(stored));
+    this.homey.app.notifyLG?.('planned', `LG ThinQ • ${this.getName()} — ${this._smartWashProgramName(stored)} gepland voor ${this._formatSmartWashTime(stored.startAt)}.`).catch(() => {});
     await this._triggerSmartWash(this._smartWashPlannedTrigger, {
       program: this._smartWashProgramName(stored),
       start_time: this._formatSmartWashTime(stored.startAt),
@@ -1419,6 +1420,7 @@ class LGWasherDevice extends Homey.Device {
             replanCount: Number(plan.replanCount || 0) + 1
           };
           await this.setStoreValue('smart_wash_plan', plan);
+          this.homey.app.notifyLG?.('replanned', `LG ThinQ • ${this.getName()} — Planning aangepast naar ${this._formatSmartWashTime(plan.startAt)}.`).catch(() => {});
           this.log(
             `Slim Wassen planning aangepast: ${new Date(oldStartAt).toISOString()} -> ` +
             `${new Date(plan.startAt).toISOString()} (${saving.toFixed(4)} EUR/kWh goedkoper)`
@@ -1465,6 +1467,7 @@ class LGWasherDevice extends Homey.Device {
       await this.setStoreValue('smart_wash_plan', blocked);
 
       if (firstWarning) {
+        this.homey.app.notifyLG?.('remote_missing', `LG ThinQ • ${this.getName()} — Remote Start is niet actief; geplande start wacht.`).catch(() => {});
         await this._triggerSmartWash(this._smartWashRemoteMissingTrigger, {
           program: this._smartWashProgramName(blocked),
           start_time: this._formatSmartWashTime(blocked.startAt),
@@ -1501,6 +1504,7 @@ class LGWasherDevice extends Homey.Device {
 
     const starting = { ...plan, status:'starting', startingAt:Date.now(), lastError:null, remoteBlockedAt:null, startAttempt:Number(plan.startAttempt || 0) + 1 };
     await this.setStoreValue('smart_wash_plan', starting);
+    this.homey.app.notifyLG?.('starting', `LG ThinQ • ${this.getName()} — ${this._smartWashProgramName(starting)} wordt gestart.`).catch(() => {});
     this.log(`Slim Wassen startpoging ${starting.startAttempt}: startprocedure begonnen.`);
     this.homey.api.realtime('smart_wash_plan_changed', {
       deviceId: typeof this.getId === 'function' ? this.getId() : this.getData().id,
@@ -1519,6 +1523,7 @@ class LGWasherDevice extends Homey.Device {
       const started = { ...starting, status:'started', startedAt:Date.now(), lastError:null };
       await this.setStoreValue('smart_wash_plan', started);
       this.log('Slim Wassen automatisch gestart.');
+      this.homey.app.notifyLG?.('running', `LG ThinQ • ${this.getName()} — ${this._smartWashProgramName(started)} is gestart.`).catch(() => {});
       await this._triggerSmartWash(this._smartWashStartedTrigger, {
         program: this._smartWashProgramName(started),
         start_time: this._formatSmartWashTime(started.startedAt),
@@ -1562,6 +1567,7 @@ class LGWasherDevice extends Homey.Device {
         lastError:errorMessage
       };
       await this.setStoreValue('smart_wash_plan', failed);
+      this.homey.app.notifyLG?.('failed', `LG ThinQ • ${this.getName()} — Start mislukt: ${errorMessage}`).catch(() => {});
       this.error(`Slim Wassen automatisch starten mislukt: ${errorMessage}`);
       await this._triggerSmartWash(this._smartWashStartFailedTrigger, {
         program: this._smartWashProgramName(failed),

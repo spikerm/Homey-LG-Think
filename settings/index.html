@@ -62,12 +62,33 @@
     <div class="hint">Voor meldingen aan één specifieke Homey-gebruiker kun je de bestaande LG ThinQ Flow-triggers combineren met Homey's eigen notificatiekaart; de Apps SDK ondersteunt bij createNotification geen ontvanger/userId.</div>
   </div>
 
+  <hr style="margin:28px 0">
+  <h1>CORTANA Home AI</h1>
+  <p>Stuur LG ThinQ-gebeurtenissen rechtstreeks naar CORTANA, zonder Flow. Een storing in CORTANA blokkeert de wasmachine of Slim Wassen nooit.</p>
+  <div class="row"><label><input id="cortanaEnabled" type="checkbox" style="width:auto"> Directe CORTANA-meldingen inschakelen</label></div>
+  <div class="provider" style="display:block">
+    <div class="row"><label for="cortanaUrl">CORTANA URL</label><input id="cortanaUrl" type="text" placeholder="http://10.10.0.232:8090"><div class="hint">Adres waarop deze Homey CORTANA kan bereiken.</div></div>
+    <div class="row"><label for="cortanaSecret">Webhook-sleutel</label><input id="cortanaSecret" type="password" autocomplete="off" placeholder="HOMEY_WEBHOOK_SECRET"><div class="hint">Wordt lokaal op Homey opgeslagen en nooit gelogd.</div></div>
+    <label><input id="cortanaTelegram" type="checkbox" style="width:auto"> Doorsturen naar Telegram</label><br><br>
+    <strong>Gebeurtenissen</strong><br><br>
+    <label><input id="cortanaPlanned" type="checkbox" style="width:auto"> Planning gemaakt</label><br>
+    <label><input id="cortanaReplanned" type="checkbox" style="width:auto"> Planning gewijzigd</label><br>
+    <label><input id="cortanaStarting" type="checkbox" style="width:auto"> Wordt gestart</label><br>
+    <label><input id="cortanaRunning" type="checkbox" style="width:auto"> Automatisch gestart / bezig</label><br>
+    <label><input id="cortanaCompleted" type="checkbox" style="width:auto"> Gereed</label><br>
+    <label><input id="cortanaFailed" type="checkbox" style="width:auto"> Start mislukt</label><br>
+    <label><input id="cortanaRemoteMissing" type="checkbox" style="width:auto"> Remote Start niet actief</label><br>
+    <label><input id="cortanaError" type="checkbox" style="width:auto"> LG-storing</label>
+  </div>
+  <button id="testCortana" type="button">Test CORTANA + Telegram</button><span id="cortanaStatus"></span>
+
   <button id="save" type="button">Opslaan</button> <button id="testPush" type="button">Testmelding versturen</button><span id="status"></span>
 
   <script>
     function onHomeyReady(Homey) {
-      const ids = ['provider','tibberToken','tibberHomeId','slimladenUrl','nordpoolToken','nordpoolApiUrl','nordpoolArea','pushEnabled','pushPlanned','pushReplanned','pushStarting','pushRunning','pushCompleted','pushFailed','pushRemoteMissing','pushError'];
+      const ids = ['cortanaEnabled','cortanaUrl','cortanaSecret','cortanaTelegram','cortanaPlanned','cortanaReplanned','cortanaStarting','cortanaRunning','cortanaCompleted','cortanaFailed','cortanaRemoteMissing','cortanaError','provider','tibberToken','tibberHomeId','slimladenUrl','nordpoolToken','nordpoolApiUrl','nordpoolArea','pushEnabled','pushPlanned','pushReplanned','pushStarting','pushRunning','pushCompleted','pushFailed','pushRemoteMissing','pushError'];
       const settingKeys = {
+        cortanaEnabled:'cortana_enabled', cortanaUrl:'cortana_url', cortanaSecret:'cortana_webhook_secret', cortanaTelegram:'cortana_telegram', cortanaPlanned:'cortana_planned', cortanaReplanned:'cortana_replanned', cortanaStarting:'cortana_starting', cortanaRunning:'cortana_running', cortanaCompleted:'cortana_completed', cortanaFailed:'cortana_failed', cortanaRemoteMissing:'cortana_remote_missing', cortanaError:'cortana_error',
         provider:'energy_price_provider', tibberToken:'tibber_api_token', tibberHomeId:'tibber_home_id',
         slimladenUrl:'slimladen_prices_url', nordpoolToken:'nordpool_api_token',
         nordpoolApiUrl:'nordpool_api_url', nordpoolArea:'nordpool_area',
@@ -75,7 +96,7 @@
         pushStarting:'push_starting', pushRunning:'push_running', pushCompleted:'push_completed',
         pushFailed:'push_failed', pushRemoteMissing:'push_remote_missing', pushError:'push_error'
       };
-      const checkboxIds = new Set(['pushEnabled','pushPlanned','pushReplanned','pushStarting','pushRunning','pushCompleted','pushFailed','pushRemoteMissing','pushError']);
+      const checkboxIds = new Set(['cortanaEnabled','cortanaTelegram','cortanaPlanned','cortanaReplanned','cortanaStarting','cortanaRunning','cortanaCompleted','cortanaFailed','cortanaRemoteMissing','cortanaError','pushEnabled','pushPlanned','pushReplanned','pushStarting','pushRunning','pushCompleted','pushFailed','pushRemoteMissing','pushError']);
 
       function showProvider() {
         const p = document.getElementById('provider').value;
@@ -101,6 +122,12 @@
               document.getElementById('pushRemoteMissing').checked = true;
               document.getElementById('pushError').checked = true;
             }
+            // CORTANA event defaults: all enabled on first configuration.
+            const cortanaEventIds = ['cortanaPlanned','cortanaReplanned','cortanaStarting','cortanaRunning','cortanaCompleted','cortanaFailed','cortanaRemoteMissing','cortanaError'];
+            if (cortanaEventIds.every(x => document.getElementById(x).checked === false)) {
+              cortanaEventIds.forEach(x => { document.getElementById(x).checked = true; });
+              document.getElementById('cortanaTelegram').checked = true;
+            }
             showProvider();
             Homey.ready();
           }
@@ -108,6 +135,16 @@
       });
 
       document.getElementById('provider').addEventListener('change', showProvider);
+      document.getElementById('testCortana').addEventListener('click', () => {
+        const status = document.getElementById('cortanaStatus');
+        const button = document.getElementById('testCortana');
+        status.textContent = ' Test verzenden...';
+        button.disabled = true;
+        Homey.api('POST', '/test-cortana', {}, (err, result) => {
+          button.disabled = false;
+          status.textContent = err ? ' Mislukt: ' + (err.message || err) : ' ✓ ' + (result?.message || 'Test verzonden');
+        });
+      });
       document.getElementById('testPush').addEventListener('click', () => {
         const status = document.getElementById('status');
         const button = document.getElementById('testPush');
